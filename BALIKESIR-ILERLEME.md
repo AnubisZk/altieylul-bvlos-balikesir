@@ -3,6 +3,23 @@
 Çalışma başka bir hesapta veya oturumda sürdürülürken ilk okunacak not budur. Sonra `CLAUDE-BALIKESIR-DEVIR.md`
 dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada).
 
+## 3 Kasım 2026, 17:10 · Gerçek arazi ve OSM verisi
+
+- Zafer Hoca GLO-30 paftasını (`Copernicus_DSM_COG_10_N39_00_E027_00_DEM.tif`, 45 MB) ve overpass-turbo
+  **GeoJSON** dışa aktarımını (`export.geojson`, 22 MB, OSM 2026-11-03T14:02Z) gönderdi. Ham dosyalar repoda yok
+  (`raw/` git dışı). `prepare-data.mjs` artık GeoJSON'u da okur (çokgenlerin dış halkası; ham JSON da çalışır).
+- `terrain.json`: 301 × 341 nokta, 20 m, 103.5–359.8 m. Saat Kulesi ≈ 159.9 m, BİLSEM kalkışı ≈ 163.9 m.
+  `fallbackElevation` 160 yapıldı.
+- `buildings.json`: 22 135 bina (21 933'ünün yüksekliği tahmini; çoğu `building=yes` → 10 m). `ground.json`: 7031 öğe.
+- Tarihi yapılar (OSM): Zağnos Paşa Camii (way 211424804; Balıkesir'deki doğru yazım "Zağnos"), Kuva-yi Milliye
+  Müzesi (way 232389727, Saat Kulesi noktasına 34 m), Atatürk Parkı (way 232036050). **Saat Kulesi** OSM çıktısında
+  adıyla yok → Google kaydındaki başlangıç noktası kullanılıyor. **BİLSEM** binası OSM'de adsız; kalkışa en yakın
+  bina 76 m (aynı boyda beş bina dizisi, ~267 m²). Fotoğraftaki BİLSEM binasının OSM'de olup olmadığı doğrulanmalı.
+- Açılış haritası caddeleri: Anafartalar, Kızılay, Atalar, Milli Kuvvetler, Zağnos Paşa Caddesi.
+- `npm test`: 84/84 (gece arama testi artık gerçek yeşil alanla çalışıyor). Headless Chrome (yazılım GPU): 22 135 bina,
+  sayfa ~22 sn'de hazır (Ankara 8313 binada ~7 sn). Gerçek GPU'lu okul bilgisayarında ölçülmeli; yavaşsa küçük
+  binalar veya eğitim çemberi dışı binalar elenir.
+
 ## 3 Kasım 2026 · `bal-0.1.0` iskelet
 
 Kaynak: `AnubisZk/altieylul-bvlos-ankara` main, commit `60b9cea` (`ank-0.2.0` + gerçek şehir). Depo temiz geçmişle

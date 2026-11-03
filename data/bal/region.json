@@ -28,7 +28,7 @@
     "lat": 39.627485,
     "note": "Altıeylül BİLSEM bahçesi, bina önündeki çim alan (Zafer Hoca'nın Google Haritalar işareti)"
   },
-  "fallbackElevation": 140,
+  "fallbackElevation": 160,
   "fallbackNote": "GLO-30 yükseklik verisi gelene kadar düz zemin. Gerçek arazi değildir.",
   "axes": "x = UTM easting - E0 (east +X); z = -(UTM northing - N0) (north -Z); y = meters above MSL",
   "localNote": "Kalkış Saat Kulesi'nin ~2 km güneyinde; alan BİLSEM çevresindeki 2,5 km eğitim çemberini ve şehir merkezini kapsar (6 × 6,8 km)."

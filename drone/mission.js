@@ -12,7 +12,7 @@ export const createDefaultRoute = home => OBSERVATION_POINTS.map(([x,z])=>({x:ho
 // açılırken atlanır.
 export const HERITAGE = [
   {id:'saat-kulesi',name:'Saat Kulesi',distance:90},
-  {id:'zaganos-pasa',name:'Zağanos Paşa Camii',distance:140},
+  {id:'zaganos-pasa',name:'Zağnos Paşa Camii',distance:140},
   {id:'kuvayi-milliye',name:'Kuva-yi Milliye Müzesi',distance:110},
   {id:'ataturk-parki',name:'Atatürk Parkı',distance:300},
   {id:'bilsem',name:'Altıeylül BİLSEM',distance:120},

@@ -1,0 +1,41 @@
+{
+ "source": "OpenStreetMap contributors",
+ "license": "ODbL-1.0",
+ "sourceUrl": "https://www.openstreetmap.org/copyright",
+ "timestamp": "2026-11-03T14:02:24Z",
+ "landmarks": [
+  {
+   "id": "zaganos-pasa",
+   "name": "Zağnos Paşa Camii",
+   "distance": 140,
+   "lon": 27.8799671,
+   "lat": 39.648764,
+   "x": 52,
+   "z": -346.6,
+   "osm": "way/211424804",
+   "osmName": "Zağnos Paşa Camii"
+  },
+  {
+   "id": "kuvayi-milliye",
+   "name": "Kuva-yi Milliye Müzesi",
+   "distance": 110,
+   "lon": 27.8796069,
+   "lat": 39.6458616,
+   "x": 24.2,
+   "z": -24.2,
+   "osm": "way/232389727",
+   "osmName": "Balıkesir Kuvâ-yi Milliye Müzesi"
+  },
+  {
+   "id": "ataturk-parki",
+   "name": "Atatürk Parkı",
+   "distance": 300,
+   "lon": 27.8882066,
+   "lat": 39.6432829,
+   "x": 764.9,
+   "z": 254.8,
+   "osm": "way/232036050",
+   "osmName": "Atatürk Parkı"
+  }
+ ]
+}

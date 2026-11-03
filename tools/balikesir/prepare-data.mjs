@@ -57,8 +57,25 @@ async function terrain(file){
 // ---------------------------------------------------------------- OSM
 const TYPE_HEIGHT={house:7,detached:7,residential:12,apartments:15,commercial:14,retail:8,office:20,school:12,university:14,public:12,civic:12,government:14,hospital:18,mosque:14,church:12,garage:3,garages:3,shed:3,roof:5,kiosk:3,service:4,hut:3,construction:10,military:8,yes:10};
 const metres=v=>{const n=parseFloat(String(v||'').replace(',','.'));return Number.isFinite(n)&&n>0&&n<400?n:null};
+// overpass-turbo "GeoJSON" dışa aktarımı → Overpass öğe modeli. Çokgenlerin yalnız dış halkası kullanılır (kutu bina
+// ve zemin katmanı için yeterli); ilişki (multipolygon) çokgenleri kendi etiketleriyle sözde way olur.
+function fromGeoJson(json){
+  const elements=[];let synthetic=0;
+  for(const f of json.features||[]){
+    const [kind,rawId]=String(f.id||f.properties?.['@id']||'').split('/');const id=Number(rawId)||-(++synthetic);
+    const tags=Object.fromEntries(Object.entries(f.properties||{}).filter(([k])=>!k.startsWith('@')));
+    const g=f.geometry;if(!g)continue;
+    const pt=([lon,lat])=>({lon,lat});
+    if(g.type==='Point'){elements.push({type:'node',id,lon:g.coordinates[0],lat:g.coordinates[1],tags});continue}
+    const lines=g.type==='LineString'?[g.coordinates]:g.type==='Polygon'?[g.coordinates[0]]:g.type==='MultiPolygon'?g.coordinates.map(p=>p[0]):g.type==='MultiLineString'?g.coordinates:[];
+    lines.forEach((c,i)=>elements.push({type:'way',id:kind==='relation'?(i?-(++synthetic):-id):id,tags:kind==='relation'?{...tags,'@relation':String(id)}:tags,geometry:c.map(pt)}));
+  }
+  return {elements,osm3s:{timestamp_osm_base:json.timestamp||null},generator:json.generator};
+}
+
 function osm(file){
-  const json=JSON.parse(fs.readFileSync(file,'utf8'));
+  let json=JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,''));
+  if(json.type==='FeatureCollection'){json=fromGeoJson(json);report.push('OSM girişi: overpass-turbo GeoJSON (dış halkalar)')}
   const nodes=new Map(),ways=new Map(),rels=[];
   for(const e of json.elements||[]){if(e.type==='node')nodes.set(e.id,e);else if(e.type==='way')ways.set(e.id,e);else if(e.type==='relation')rels.push(e)}
   // `out body` (node references) and `out geom` (inline geometry) are both accepted
@@ -97,8 +114,8 @@ function osm(file){
   const homeL=local(region.home.lon,region.home.lat);
   const WANT=[
     {id:'saat-kulesi',name:'Saat Kulesi',distance:90,re:/saat kulesi/,near:[0,0]},
-    {id:'zaganos-pasa',name:'Zağanos Paşa Camii',distance:140,re:/zaganos (pasa )?cami/,prefer:t=>t.building||t.amenity==='place_of_worship',near:[0,0]},
-    {id:'kuvayi-milliye',name:'Kuva-yi Milliye Müzesi',distance:110,re:/kuva ?y[i] ?milliye.*muze/,near:[0,0]},
+    {id:'zaganos-pasa',name:'Zağnos Paşa Camii',distance:140,re:/zag(a)?nos ?(pasa )?cami/,prefer:t=>t.building||t.amenity==='place_of_worship',near:[0,0]},
+    {id:'kuvayi-milliye',name:'Kuva-yi Milliye Müzesi',distance:110,re:/kuva ?y[i] ?milliye muze/,near:[0,0]},
     {id:'ataturk-parki',name:'Atatürk Parkı',distance:300,re:/^ataturk park/,prefer:t=>t.leisure==='park',near:[0,0]},
     {id:'bilsem',name:'Altıeylül BİLSEM',distance:120,re:/(altieylul )?bilim ve sanat merkezi|bilsem/,prefer:t=>t.building||t.amenity==='school',near:[homeL[0],homeL[1]]},
   ];

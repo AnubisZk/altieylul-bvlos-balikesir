@@ -7,7 +7,7 @@ import fs from 'node:fs';
 // raporlanır ve atlanır.
 const arg=process.argv.indexOf('--streets');
 const NAMES=arg>0?process.argv[arg+1].split(',').map(s=>s.trim()).filter(Boolean)
-  :['Milli Kuvvetler Caddesi','Anafartalar Caddesi','Gazi Bulvarı','Vasıf Çınar Caddesi','Kızılay Caddesi'];
+  :['Anafartalar Caddesi','Kızılay Caddesi','Atalar Caddesi','Milli Kuvvetler Caddesi','Zağnos Paşa Caddesi'];
 const data=JSON.parse(fs.readFileSync('data/bal/ground.json','utf8'));
 const landmarks=JSON.parse(fs.readFileSync('data/bal/landmarks.json','utf8')).landmarks;
 const region=JSON.parse(fs.readFileSync('data/bal/region.json','utf8'));
