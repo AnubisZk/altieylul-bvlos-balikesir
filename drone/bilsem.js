@@ -2,11 +2,13 @@
 // Binalar: MEB tip projesi, yordamsal model (bilsem-bina.js; iki okul aynı proje, Fen Lisesi aynalı). Kamelya: Meshy modeli
 // (models/bilsem-bina.glb → Kamelya düğümü, tools/balikesir/prepare-bilsem.mjs). style.model = "meshy" eski Meshy
 // binasına döner. Bina kutusu Google uydu görüntüsünden ölçülen genişlikte, yönü ölçülen çatı ekseninden, tabanı DEM
-// zeminine oturur. Kamelya kendi ölçülen yerine ayrıca konur. Çarpışma: bina planının duvar ve çatı yüksekliği,
-// bayrak direği ve kamelya kutusu (normal bina gibi: çarpma = kaza).
+// zeminine oturur. Kamelya kendi ölçülen yerine ayrıca konur. Bahçe ve avlu: bilsem-bahce.js (koruma alanı okul
+// bahçesinin tamamı). Çarpışma: bina planının duvar ve çatı yüksekliği, bayrak direkleri, büst, ağaçlar ve kamelya
+// kutusu (normal bina gibi: çarpma = kaza).
 import * as T from 'three';
 import {lonLatToLocal} from '../src/geo.js';
 import {binaPlan,createBinaObject} from './bilsem-bina.js';
+import {yardZone,zoneKeep,yardObstacles,createYard} from './bilsem-bahce.js';
 
 /** Yönlü kutu: merkez (x,z), birim eksen u, yarı boyutlar (hu, hv), taban ve tavan. */
 export function orientedBox({x,z,u,hu,hv,bottom,top,name}){
@@ -33,7 +35,8 @@ export function bilsemPlacement(data,ground){
     const box=orientedBox({x:fc.x,z:fc.z,u,hu:building.hu,hv:building.hv,bottom:fb,top:fb+b.height,name:f.name});
     const fplan=binaPlan({hu:building.hu,hv:building.hv,height:b.height},f.style);
     const fv=[-u[1],u[0]],fworld=(a,bb)=>({x:fc.x+a*u[0]+bb*fv[0],z:fc.z+a*u[1]+bb*fv[1]});
-    fen={id:'fen-lisesi',building:box,plan:fplan,world:fworld,pole:fplan.st.flag?{...fworld(fplan.s*fplan.pole.x,fplan.pole.z),height:fplan.pole.height}:null};
+    fen={id:'fen-lisesi',building:box,plan:fplan,world:fworld,zone:yardZone(box,f.avlu?.zone),yard:f.avlu||{},
+      pole:fplan.st.flag?{...fworld(fplan.s*fplan.pole.x,fplan.pole.z),height:fplan.pole.height}:null};
   }
   let kamelya=null;
   if(data.kamelya&&m.kamelya){
@@ -43,12 +46,15 @@ export function bilsemPlacement(data,ground){
   const v=[-u[1],u[0]],world=(a,bb)=>({x:c.x+a*u[0]+bb*v[0],z:c.z+a*u[1]+bb*v[1]});
   const pole=plan.st.flag?{...world(plan.s*plan.pole.x,plan.pole.z),height:plan.pole.height}:null;
   // three.js: modelin +X ekseni u yönüne (rotation.y = atan2(-uz, ux)); +Z (bina önü) güneye bakar
-  const schools=[{id:'bilsem',building,plan,world,pole},fen].filter(Boolean);
+  const schools=[{id:'bilsem',building,plan,world,pole,zone:yardZone(building,data.bahce?.zone),yard:data.bahce||{}},fen].filter(Boolean);
   return {s,sy,yaw:Math.atan2(-u[1],u[0]),building,kamelya,plan,pole,world,fen,schools,buildings:schools.map(x=>x.building),
-    boxes:[building,kamelya,fen?.building].filter(Boolean)};
+    boxes:[building,kamelya,fen?.building].filter(Boolean),
+    // koruma alanları: her okulun bahçesi/avlusu bütün (Google'ın bina tümseği ve kaymış çatı fotoğrafı içeride kalır)
+    keepZones:schools.map(sc=>zoneKeep(sc.zone,sc.world,u)),
+    yardObstacles:yardObstacles(data.bahce,world)};
 }
 
-export async function createBilsemLayer({loader,data,ground,anisotropy=4}){
+export async function createBilsemLayer({loader,data,ground,surface=ground,anisotropy=4}){
   const place=bilsemPlacement(data,ground),m=data.model;
   const gltf=await loader.loadGLTF(data.glb);
   const object=new T.Group();object.name='bilsem';
@@ -77,10 +83,18 @@ export async function createBilsemLayer({loader,data,ground,anisotropy=4}){
     return {...sc,bina,meshy,roofAt};
   });
   put('Kamelya',place.kamelya,m.kamelya);
+  // bahçe ve avlu: koruma alanının tamamı bizim zemin (arazi ağı üçgenlerine oturur)
+  const yards=schools.map(sc=>{
+    const vols=sc.plan.vols,s=sc.plan.s;
+    const y=createYard({kind:sc.id==='bilsem'?'bahce':'avlu',zone:sc.zone,spec:sc.yard,world:sc.world,center:sc.building,yaw:place.yaw,surface,anisotropy,
+      inBuilding:(a,bb)=>{const x=s*a;return vols.some(v=>x>=v.x0+0.2&&x<=v.x1-0.2&&bb>=v.z0+0.2&&bb<=v.z1-0.2)}});
+    object.add(y.object);return y;
+  });
+  const obstacles=place.yardObstacles.map(o=>({...o,g:ground(o.x,o.z)}));
   const kam=place.kamelya,tip=schools.some(x=>!x.meshy);
   return {
     object,boxes:place.boxes,stats:{model:data.glb,source:tip?'tip proje (temsili)':'Meshy (temsili)',okullar:schools.map(x=>x.building.name)},
-    update(dt){for(const sc of schools)sc.bina?.update(dt)},
+    update(dt){for(const sc of schools)sc.bina?.update(dt);for(const y of yards)y.update(dt)},
     heightAt(x,z){let h=-Infinity;for(const sc of schools)h=Math.max(h,sc.roofAt(x,z));if(kam?.inside(x,z))h=Math.max(h,kam.top);return h},
     hitTest(x,y,z,r=0){
       for(const sc of schools){
@@ -89,6 +103,7 @@ export async function createBilsemLayer({loader,data,ground,anisotropy=4}){
         if(pole&&Math.hypot(x-pole.x,z-pole.z)<=r+0.12){const g=ground(pole.x,pole.z);if(y>=g-r&&y<=g+pole.height+r)return {type:'building',id:sc.id+'-bayrak',name:b.name+' bayrak direği'}}
       }
       if(kam&&y>=kam.bottom-r&&y<=kam.top+r&&kam.inside(x,z,r))return {type:'building',id:'bilsem',name:kam.name};
+      for(const o of obstacles)if(Math.hypot(x-o.x,z-o.z)<=o.r+r&&y>=o.g-r&&y<=o.g+o.h+r)return {type:'building',id:'bilsem-bahce',name:o.name};
       return null;
     },
   };

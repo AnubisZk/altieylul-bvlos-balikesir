@@ -13,7 +13,7 @@
     "band": "#efc3b5",
     "bandFrame": "#94353c",
     "sign": "ALTIEYLÜL BİLİM VE SANAT MERKEZİ",
-    "flag": true
+    "flag": false
   },
   "building": {
     "center": [
@@ -39,7 +39,140 @@
     ],
     "note": "Görüntüde kamelya cepheden ~15 m önde, binanın batı ucunda (Meshy'deki yerinden ileride)."
   },
-  "keepMargin": 1.5,
+  "bahce": {
+    "note": "Zafer Hoca'nın BİLSEM fotoğrafı ve uydu görüntüsü: binanın önünde açık renk taş döşeme, önde ve batıda çim, çimde çam fidanları, döşemede banklar, kamelya döşemenin ön-batı köşesinde; Atatürk büstü ve bayrak. Koordinatlar binaya göre yerel metre: a doğu (bina ekseni), b güney (ön cephe). zone: koruma alanı (Google ağı atılır, zemin bizim) — bina kutusundan yanlara side, arkaya back, öne front metre. plaza: taş döşeme dikdörtgenleri [a0,a1,b0,b1], geri kalanı çim. pines: [a,b,boy], saplings: [a,b], benches: [a,b,dönüş°]. Ped (-7.5, 33) çevresi boş tutulur.",
+    "zone": {
+      "side": 8,
+      "back": 8,
+      "front": 29
+    },
+    "plaza": [
+      [
+        -28,
+        37.6,
+        8,
+        30
+      ],
+      [
+        -28,
+        -16,
+        30,
+        35.5
+      ],
+      [
+        -37.6,
+        37.6,
+        -21,
+        -8
+      ],
+      [
+        29,
+        37.6,
+        -8,
+        30
+      ]
+    ],
+    "pines": [
+      [
+        -34,
+        39,
+        3.6
+      ],
+      [
+        -24,
+        39.5,
+        4.2
+      ],
+      [
+        -12,
+        38.5,
+        3.2
+      ],
+      [
+        0,
+        37.5,
+        3.8
+      ],
+      [
+        12,
+        38,
+        3.4
+      ],
+      [
+        24,
+        37,
+        4.4
+      ],
+      [
+        33,
+        39.5,
+        3.6
+      ],
+      [
+        -33,
+        20,
+        4.6
+      ],
+      [
+        -34,
+        6,
+        3.9
+      ],
+      [
+        -33,
+        -4,
+        4.2
+      ]
+    ],
+    "saplings": [
+      [
+        -18,
+        40
+      ],
+      [
+        6,
+        40.5
+      ],
+      [
+        18,
+        35.5
+      ],
+      [
+        -31,
+        30
+      ]
+    ],
+    "benches": [
+      [
+        -15,
+        29,
+        0
+      ],
+      [
+        14,
+        29,
+        0
+      ],
+      [
+        20,
+        29,
+        0
+      ],
+      [
+        -30.5,
+        24,
+        90
+      ]
+    ],
+    "ataturk": {
+      "at": [
+        -12,
+        24
+      ],
+      "flag": true,
+      "note": "Atatürk köşesi: kaide, büst (temsili), plaket, bayrak direği büstün sağ arkasında."
+    }
+  },
   "model": {
     "source": "Meshy AI (Zafer Hoca), sadeleştirilmiş",
     "bina": {
@@ -78,6 +211,14 @@
       "endFrame": "#e07b2c",
       "sign": "ALTIEYLÜL FEN LİSESİ",
       "flag": true
+    },
+    "avlu": {
+      "note": "Fen Lisesi: binanın çevresi beton avlu (fotoğraflar). zone: koruma alanı.",
+      "zone": {
+        "side": 8,
+        "back": 8,
+        "front": 8
+      }
     }
   }
 }

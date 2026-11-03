@@ -144,11 +144,18 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   geo.translate((b.minX+b.maxX)/2,0,(b.minZ+b.maxZ)/2);
   const p=geo.attributes.position;for(let i=0;i<p.count;i++)p.setY(i,terrainHeight(p.getX(i),p.getZ(i)));
   geo.computeVertexNormals();
+  // arazi ağının gerçek yüzeyi (PlaneGeometry üçgenleri: (a,b,d) ve (b,c,d)); bahçe kaplaması buna oturur
+  const terrainSurface=(x,z)=>{
+    const fx=(x-b.minX)/step,fz=(z-b.minZ)/step,ix=Math.min(Math.max(Math.floor(fx),0),cols-1),iz=Math.min(Math.max(Math.floor(fz),0),rows-1);
+    const uu=fx-ix,vv=fz-iz,h=(i,j)=>terrainHeight(b.minX+i*step,b.minZ+j*step);
+    const ha=h(ix,iz),hb=h(ix,iz+1),hc=h(ix+1,iz+1),hd=h(ix+1,iz);
+    return uu+vv<=1?ha+(hd-ha)*uu+(hb-ha)*vv:hc+(hb-hc)*(1-uu)+(hd-hc)*(1-vv);
+  };
   // gerçekçi şehir açıkken (google-city.js) arazi yalnız koruma alanında (kalkış pisti) görünür
   const homeLocal=region.home?lonLatToLocal(region.home.lon,region.home.lat):null;
   // BİLSEM binası, kamelyası ve Fen Lisesi: Google ağı orada atılır, temsili model görünür (bilsem.js; en çok 4 koruma alanı)
   const bilsemPlace=bilsemData?.model&&loader?bilsemPlacement(bilsemData,terrainHeight):null;
-  const keep=keepZones({home:homeLocal,extra:(bilsemPlace?.boxes||[]).map(b=>b.keep(bilsemData.keepMargin||1.5))}),keepU=keepUniforms(keep);
+  const keep=keepZones({home:homeLocal,extra:bilsemPlace?.keepZones||[]}),keepU=keepUniforms(keep);
   const tMat=terrainMaterial(shared);clipToKeep(tMat,keepU,null);
   const terrainMesh=new T.Mesh(geo,tMat);terrainMesh.receiveShadow=true;terrainMesh.name='city-terrain';
   const object=new T.Group();object.name='city-world';object.add(terrainMesh);
@@ -163,7 +170,7 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   const layers=[];
   if(bilsemPlace){
     onProgress(.8,'BİLSEM binası');
-    try{const layer=await createBilsemLayer({loader,data:bilsemData,ground:terrainHeight,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});layers.push(layer);object.add(layer.object);sources.bilsem=layer.stats.source}
+    try{const layer=await createBilsemLayer({loader,data:bilsemData,ground:terrainHeight,surface:terrainSurface,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});layers.push(layer);object.add(layer.object);sources.bilsem=layer.stats.source}
     catch(e){console.warn('[bilsem] model yüklenemedi',e.message);sources.bilsem='yüklenemedi'}
   }
 

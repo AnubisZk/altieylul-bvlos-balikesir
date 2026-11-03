@@ -157,11 +157,13 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
   for(const x of [c+0.75,c+5.25,x1-0.8,xe+0.5])pipe(x,mb-0.12);
   pipe(x0+0.7,zf+0.12);pipe(xe-0.7,zf+0.12);pipe(x0+0.7,zb-0.12);pipe(xe-0.7,zb-0.12);
 
-  // bayrak direği (giriş önü)
+  // bayrak direği (giriş önü; BİLSEM'de direk Atatürk köşesinde, bilsem-bahce.js)
   const pole=plan.pole,pg=ga(pole.x,pole.z);
-  add('metal',new T.CylinderGeometry(0.055,0.085,pole.height,10).translate(pole.x,pg+pole.height/2,pole.z));
-  add('stone',new T.CylinderGeometry(0.55,0.65,0.35,16).translate(pole.x,pg+0.12,pole.z));
-  add('metal',new T.SphereGeometry(0.12,12,8).translate(pole.x,pg+pole.height+0.08,pole.z));
+  if(st.flag){
+    add('metal',new T.CylinderGeometry(0.055,0.085,pole.height,10).translate(pole.x,pg+pole.height/2,pole.z));
+    add('stone',new T.CylinderGeometry(0.55,0.65,0.35,16).translate(pole.x,pg+0.12,pole.z));
+    add('metal',new T.SphereGeometry(0.12,12,8).translate(pole.x,pg+pole.height+0.08,pole.z));
+  }
 
   const tex=tileTexture(st.roof,anisotropy);
   const mat=(name,o)=>{const m=new T.MeshStandardMaterial(o);m.name='bilsem-'+name;return m};
@@ -266,7 +268,7 @@ function signTexture(text,anisotropy){
 }
 
 /** Türk bayrağı (Türk Bayrağı Kanunu oranları), hafif dalgalanır. */
-function createFlag(anisotropy){
+export function createFlag(anisotropy){
   const G=256,cv=document.createElement('canvas');cv.width=G*1.5;cv.height=G;const g=cv.getContext('2d');
   g.fillStyle='#e30a17';g.fillRect(0,0,cv.width,cv.height);
   const circ=(x,y,r,c)=>{g.fillStyle=c;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()};

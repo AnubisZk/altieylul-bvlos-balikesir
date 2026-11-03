@@ -8,9 +8,30 @@ dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturu
 
 - Canlı: https://altieylul-bvlos-balikesir.vercel.app · depo `AnubisZk/altieylul-bvlos-balikesir` (main → Vercel otomatik).
 - Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası ve
-  arkasındaki Altıeylül Fen Lisesi (MEB tip projesi, yordamsal, temsili) + BİLSEM kamelyası (Meshy), kalkış pedi BİLSEM
-  ön avlusunda, Saat Kulesi çevresinde 6 noktalı tur, Balıkesir müziği.
+  arkasındaki Altıeylül Fen Lisesi (MEB tip projesi, yordamsal, temsili) + BİLSEM kamelyası (Meshy), BİLSEM bahçesi ve
+  Atatürk köşesi, Fen Lisesi beton avlusu, kalkış pedi BİLSEM ön bahçesinde, Saat Kulesi çevresinde 6 noktalı tur,
+  Balıkesir müziği.
 - Açık işler: aşağıda "Sıradaki adımlar".
+
+## 3 Kasım 2026, 23:55 · Bahçe, Atatürk köşesi, Google tümseği düzeltmesi
+
+- Canlıda (Karma) BİLSEM cephesinin önünde havada asılı pembe bir yüzey görüldü (Zafer Hoca'nın ekran görüntüsü).
+  Neden: Google ağı binayı arazide kabarık bir tümsek olarak verir ve üstüne kaymış çatı fotoğrafını giydirir;
+  koruma alanı binanın yalnız 1,5 m dışına uzandığı için tümseğin eteği cephenin önünde kalıyordu.
+  Düzeltme: koruma alanı artık okulun bahçesinin tamamı (`bilsem.json → bahce.zone`: yanlara 8, arkaya 8, öne 29 m;
+  ped ve kamelya içinde) ve Fen Lisesi avlusu (`fenLisesi.avlu.zone`: her yöne 8 m). Koruma alanları: ped, BİLSEM
+  bahçesi, Fen avlusu (3/4). Alanın içinde zemin bizim: `drone/bilsem-bahce.js` arazi ağının üçgenlerine birebir oturan
+  kaplama (`city-world.js terrainSurface`), 4 cm yukarıda + polygonOffset; ped kaplamanın üstünde kalır.
+  Canlıda kontrol: tümsek kalkmalı; bahçe kenarında Google zemini ile küçük bir basamak görünebilir.
+- BİLSEM bahçesi Zafer Hoca'nın BİLSEM fotoğrafından: binanın önünde açık renk taş döşeme (kamelya döşemenin ön-batı
+  köşesinde), önde ve batıda çim, çimde 10 çam fidanı ve 4 genç ağaç, 4 bank; arka ve doğu taş döşeme. Fen Lisesi:
+  binanın çevresi beton avlu. Düzen `bilsem.json → bahce` (yerel metre, a doğu / b güney), elle değiştirilebilir.
+- **Atatürk köşesi** (Zafer Hoca: "Atatürk büstü ve bayrak olacak"): binanın ~14 m önünde, kamelya ile giriş arasında
+  (`bahce.ataturk.at` = [-12, 24]); basamak, mermer kaide, "ATATÜRK" plaketi, bronz büst (temsili genel büst biçimi,
+  portre değil), sağ arkasında 9 m bayrak direği ve dalgalanan bayrak. BİLSEM'in giriş önündeki bayrak direği kaldırıldı
+  (`style.flag: false`); Fen Lisesi'nin giriş bayrağı duruyor.
+- Çarpışma: büst, bayrak direği, çam fidanları ve ağaçlar engel (pede en az 4 m + yarıçap; test denetler).
+- `npm test` 87/87; headless'ta ped kamerası ve yapı inceleme görünümü kontrol edildi.
 
 ## 3 Kasım 2026, 23:30 · Altıeylül Fen Lisesi eklendi, yan cepheler, çatı rengi
 
@@ -25,8 +46,7 @@ dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturu
   Aynı görüntüde kamelya modeldeki yerine 3–4 m içinde oturuyor (ölçek ve hizalama doğrulaması).
   Renkler ön cephe fotoğrafından: 4. kat kırmızı, 2. kat mavi, giriş yeşil, uç blok turuncu çerçeve; tabela
   "ALTIEYLÜL FEN LİSESİ", girişin solunda bayrak direği. Yapı inceleme listesinde "Altıeylül Fen Lisesi" var.
-- Koruma alanları artık 4 (ped, BİLSEM, kamelya, Fen Lisesi) — `keep-zone.js MAX_KEEP` dolu; yeni özel model
-  eklenecekse sınır büyütülmeli. Fen ayak izine düşen OSM kutusu yok.
+- (23:55'te değişti: koruma alanları okul bahçeleri oldu, 3/4.) Fen ayak izine düşen OSM kutusu yok.
 - Çatı rengi fotoğraflardaki turuncu kiremide yaklaştırıldı (`style.roof`, varsayılan `#c47a55`).
 - `npm test` 87/87.
 
@@ -182,9 +202,9 @@ ve kalkışa 250 m içindeki OSM adlarını yazar. OSM'deki Saat Kulesi konumu G
 
 ## Sıradaki adımlar
 
-0. Zafer Hoca canlıda iki okula baksın: BİLSEM bant renkleri, Fen Lisesi'nin yeri (±5 m; kaydırma yalnız
-   `bilsem.json → fenLisesi.center`), Karma görünümde Google zeminiyle uyum. Bahçe için BİLSEM'in ön bahçesinden
-   fotoğraf (çim/avlu, çam fidanları, yollar); batıdaki boş alan ve duvarın ölçüsü.
+0. Zafer Hoca canlıda iki okula baksın: cephe önündeki Google tümseği kalktı mı, bahçe kenarında Google zemini ile
+   basamak var mı, Fen Lisesi'nin yeri (±5 m; kaydırma yalnız `bilsem.json → fenLisesi.center`), Atatürk köşesinin ve
+   bahçe düzeninin yeri (`bilsem.json → bahce`). Batıdaki boş alan ve duvar henüz yok (ölçü bekleniyor).
 1. Zafer Hoca canlı sitede BİLSEM'i kontrol etsin: binanın yeri/yönü, kamelya ve ped konumu, Karma görünümde Google
    zemini ile uyum. Kaydırma gerekirse yalnız `data/bal/bilsem.json` (building.center, kamelya.at) ve
    `region.json home` değişir; testler (`tests/balikesir.test.mjs`) tutarlılığı denetler.

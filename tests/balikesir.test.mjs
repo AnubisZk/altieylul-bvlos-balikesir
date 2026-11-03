@@ -74,7 +74,12 @@ test('BİLSEM binası: ölçülen konum ve ölçüde, kalkış pedi ön avluda, 
   assert.ok(Math.hypot(k.x-home.x,k.z-home.z)>8,'kamelya pede çok yakın değil');
   // Google kalibrasyon noktası (ped +12 m doğu) bina ve kamelya dışında
   assert.ok(!p.boxes.some(x=>x.inside(home.x+12,home.z,1)));
-  const zones=keepZones({home,extra:p.boxes.map(x=>x.keep(1.5))});assert.ok(zones.length<=4,'en fazla 4 koruma alanı (keep-zone.js MAX_KEEP)');
+  const zones=keepZones({home,extra:p.keepZones});assert.ok(zones.length<=4,'en fazla 4 koruma alanı (keep-zone.js MAX_KEEP)');
+  // bahçe koruma alanı binayı, kamelyayı ve pedi içine alır (Google'ın bina tümseği cephe önünde kalmasın)
+  const inZone=(zn,x,z,m=0)=>{const dx=x-zn.c[0],dz=z-zn.c[1];return Math.abs(dx*zn.u[0]+dz*zn.u[1])<=zn.h[0]-m&&Math.abs(-dx*zn.u[1]+dz*zn.u[0])<=zn.h[1]-m};
+  for(const [x,z] of [[b.x-b.hu,b.z-b.hv],[b.x+b.hu,b.z+b.hv],[k.x,k.z],[home.x,home.z]])assert.ok(inZone(p.keepZones[0],x,z,5),'bahçe alanı');
+  for(const o of p.yardObstacles){assert.ok(Math.hypot(o.x-home.x,o.z-home.z)>o.r+4,o.name+' pede yakın');assert.ok(!b.inside(o.x,o.z,1),o.name+' binada');assert.ok(!k.inside(o.x,o.z,0.5),o.name+' kamelyada')}
+  assert.ok(p.yardObstacles.some(o=>o.name==='Atatürk büstü')&&p.yardObstacles.some(o=>o.name==='bayrak direği'));
 });
 
 test('BİLSEM tip proje binası: hacimler ölçülen kutuda, çatı ölçülen yükseklikte, ped/kamelya/bayrak direği bina dışında',()=>{
@@ -87,7 +92,7 @@ test('BİLSEM tip proje binası: hacimler ölçülen kutuda, çatı ölçülen y
   assert.ok(plan.heightAt(0,0)>plan.dims.wallTop,'ortada mahya');
   assert.ok(plan.vols[0].x1<0,'merdiven bloğu batı ucunda (Meshy)');
   for(const q of [home,p.kamelya]){const [a,c]=b.local(q.x,q.z);assert.equal(plan.heightAt(a,c),-Infinity)}
-  assert.ok(Math.hypot(p.pole.x-home.x,p.pole.z-home.z)>15,'bayrak direği pede uzak');
+  assert.equal(p.pole,null,'BİLSEM bayrağı giriş önünde değil, Atatürk köşesinde');
   // çatı birleşimi: uç bloğun öne taşan kısmında uç blok çatısı, ana bloğun ortasında ana çatı
   assert.ok(plan.heightAt(plan.dims.x0+4,b.hv-0.5)>plan.dims.wallTop);
   assert.ok(Math.abs(plan.heightAt(20,0)-(plan.dims.wallTop+plan.dims.k*(b.hv-3+plan.dims.o-0.25)))<0.6);
@@ -104,6 +109,6 @@ test('Fen Lisesi: BİLSEM arkasında (kuzey), aynı tip proje aynalı, araların
   assert.equal(f.plan.s,-1,'Fen Lisesi aynalı: merdiven bloğu doğuda');assert.equal(p.plan.s,1,'BİLSEM: merdiven bloğu batıda');
   assert.ok(f.plan.top<=data.building.height+0.01);
   assert.ok(!f.building.inside(home.x,home.z,20),'ped Fen Lisesi\'nden uzak');
-  assert.ok(keepZones({home,extra:p.boxes.map(x=>x.keep(1.5))}).length<=4,'pad + BİLSEM + kamelya + Fen = 4 koruma alanı');
+  assert.ok(keepZones({home,extra:p.keepZones}).length<=4,'ped + BİLSEM bahçesi + Fen avlusu ≤ 4 koruma alanı');
   assert.ok(HERITAGE.some(h=>h.id==='fen-lisesi'));
 });
