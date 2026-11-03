@@ -1,9 +1,9 @@
-// Koruma alanı: Balıkesir'de yalnız kalkış pisti (BİLSEM bahçesi). İleride özel model (ör. Saat Kulesi) eklenirse
-// onun yönlü dikdörtgeni de buraya eklenir (monument/road biçimi Ankara sürümünden kalır). Gerçekçi şehir
+// Koruma alanı: kalkış pisti, BİLSEM bahçesi, Fen Lisesi avlusu ve tarihi yapıların çevresi (bilsem.js, tarihi-yapilar.js)
+// yönlü dikdörtgenler olarak buraya eklenir (monument/road biçimi Ankara sürümünden kalır). Gerçekçi şehir
 // (google-city.js) açıkken Google ağı bu dikdörtgenlerin içinde, bizim arazimiz dışında gölgelendiricide atılır.
 import * as T from 'three';
 
-const MAX_KEEP=4;
+export const MAX_KEEP=8;   // ped, BİLSEM bahçesi, Fen avlusu, Saat Kulesi, müze, cami, gar + 1
 export const KEEP_GLSL=`uniform vec4 uKeepC[${MAX_KEEP}];uniform vec2 uKeepH[${MAX_KEEP}];uniform float uKeepN;uniform float uKeepMode;
 bool ankInKeep(vec2 p){for(int i=0;i<${MAX_KEEP};i++){if(float(i)>=uKeepN)break;vec2 d=p-uKeepC[i].xy,u=uKeepC[i].zw;
   if(abs(dot(d,u))<=uKeepH[i].x&&abs(dot(d,vec2(-u.y,u.x)))<=uKeepH[i].y)return true;}return false;}`;

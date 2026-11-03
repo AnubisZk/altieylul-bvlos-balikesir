@@ -194,7 +194,7 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
 }
 
 /** Kırma çatı: dikdörtgen + saçak, eğim k; her yüz ayrı köşeli, UV metre cinsinden (kiremit dokusu). */
-function hipRoof(r,tile){
+export function hipRoof(r,tile){
   const pos=[],uv=[],idx=[],W=r.x1-r.x0,D=r.z1-r.z0,h=Math.min(W,D)/2,yr=r.y+h*r.k,sl=Math.hypot(1,r.k);
   const A=[r.x0,r.y,r.z0],B=[r.x1,r.y,r.z0],C=[r.x1,r.y,r.z1],Dd=[r.x0,r.y,r.z1];
   const [R1,R2]=W>=D?[[r.x0+h,yr,(r.z0+r.z1)/2],[r.x1-h,yr,(r.z0+r.z1)/2]]:[[(r.x0+r.x1)/2,yr,r.z0+h],[(r.x0+r.x1)/2,yr,r.z1-h]];
@@ -239,7 +239,7 @@ function mirrorX(g){
 }
 
 /** Alaturka kiremit dokusu: sıra sıra yarım yuvarlak kiremit, sıra altında gölge, renk oynaması. 2.2 m'de bir tekrar. */
-function tileTexture(hex,anisotropy){
+export function tileTexture(hex,anisotropy){
   const S=512,cv=document.createElement('canvas');cv.width=cv.height=S;const g=cv.getContext('2d');
   const base=new T.Color(hex);let seed=11;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
   const rgb=(c,f)=>`rgb(${Math.min(255,c.r*255*f)|0},${Math.min(255,c.g*255*f)|0},${Math.min(255,c.b*255*f)|0})`;

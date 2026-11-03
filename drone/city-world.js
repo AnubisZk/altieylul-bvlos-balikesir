@@ -16,6 +16,7 @@ import {pointInRing,distanceToRing} from './area.js';
 import {keepZones,keepUniforms,clipToKeep} from './keep-zone.js';
 import {createCityBuildings} from './city-buildings.js';
 import {createBilsemLayer,bilsemPlacement} from './bilsem.js';
+import {heritagePlacement,createHeritageLayer} from './tarihi-yapilar.js';
 
 export const CITY_DATA='data/bal/';
 
@@ -125,9 +126,9 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   onProgress(.15,'Gökyüzü ve ışık');
   const environment=await createEnvironment({scene,renderer,camera,map:{id:'bal',fogBank:false},quality});
   onProgress(.35,'Arazi');
-  const [grid,buildingData,landmarkData,groundData,bilsemData]=await Promise.all([
+  const [grid,buildingData,landmarkData,groundData,bilsemData,heritageData]=await Promise.all([
     json(CITY_DATA+'terrain.json',true),json(CITY_DATA+'buildings.json',true),json(CITY_DATA+'landmarks.json',true),
-    json(CITY_DATA+'ground.json',true),json(CITY_DATA+'bilsem.json',true),
+    json(CITY_DATA+'ground.json',true),json(CITY_DATA+'bilsem.json',true),json(CITY_DATA+'tarihi-yapilar.json',true),
   ]);
   const fallback=region.fallbackElevation??140;
   const terrainHeight=heightSampler(grid,fallback);
@@ -153,9 +154,11 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   };
   // gerçekçi şehir açıkken (google-city.js) arazi yalnız koruma alanında (kalkış pisti) görünür
   const homeLocal=region.home?lonLatToLocal(region.home.lon,region.home.lat):null;
-  // BİLSEM binası, kamelyası ve Fen Lisesi: Google ağı orada atılır, temsili model görünür (bilsem.js; en çok 4 koruma alanı)
+  // BİLSEM binası, kamelyası ve Fen Lisesi (bilsem.js), tarihi yapılar (tarihi-yapilar.js): Google ağı bahçelerinde atılır,
+  // temsili modeller görünür (keep-zone.js MAX_KEEP koruma alanı)
   const bilsemPlace=bilsemData?.model&&loader?bilsemPlacement(bilsemData,terrainHeight):null;
-  const keep=keepZones({home:homeLocal,extra:bilsemPlace?.keepZones||[]}),keepU=keepUniforms(keep);
+  const heritagePlace=heritageData?heritagePlacement(heritageData,terrainHeight):null;
+  const keep=keepZones({home:homeLocal,extra:[...(bilsemPlace?.keepZones||[]),...(heritagePlace?.keepZones||[])]}),keepU=keepUniforms(keep);
   const tMat=terrainMaterial(shared);clipToKeep(tMat,keepU,null);
   const terrainMesh=new T.Mesh(geo,tMat);terrainMesh.receiveShadow=true;terrainMesh.name='city-terrain';
   const object=new T.Group();object.name='city-world';object.add(terrainMesh);
@@ -163,8 +166,10 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   scene.add(object);
 
   onProgress(.6,'Binalar');
-  // BİLSEM ve Fen Lisesi ayak izine düşen OSM kutuları (varsa) temsili modelle değişir
-  const osmBuildings=(buildingData?.buildings||[]).filter(b=>{if(!bilsemPlace)return true;const n=b.ring.length,cx=b.ring.reduce((s,p)=>s+p[0],0)/n,cz=b.ring.reduce((s,p)=>s+p[1],0)/n;return !bilsemPlace.buildings.some(x=>x.inside(cx,cz))});
+  // BİLSEM, Fen Lisesi ve tarihi yapıların ayak izine düşen OSM kutuları temsili modelle değişir
+  const osmBuildings=(buildingData?.buildings||[]).filter(b=>{
+    if(heritagePlace?.removes(b.ring))return false;if(!bilsemPlace)return true;
+    const n=b.ring.length,cx=b.ring.reduce((s,p)=>s+p[0],0)/n,cz=b.ring.reduce((s,p)=>s+p[1],0)/n;return !bilsemPlace.buildings.some(x=>x.inside(cx,cz))});
   const obstacles=createObstacleIndex(osmBuildings,terrainHeight);
   const bm=createCityBuildings(obstacles.list,{anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});if(bm)object.add(bm);
   const layers=[];
@@ -173,12 +178,20 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
     try{const layer=await createBilsemLayer({loader,data:bilsemData,ground:terrainHeight,surface:terrainSurface,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});layers.push(layer);object.add(layer.object);sources.bilsem=layer.stats.source}
     catch(e){console.warn('[bilsem] model yüklenemedi',e.message);sources.bilsem='yüklenemedi'}
   }
+  if(heritagePlace&&loader){
+    onProgress(0.85,'Tarihi yapılar');
+    try{const layer=createHeritageLayer({data:heritageData,ground:terrainHeight,surface:terrainSurface,place:heritagePlace,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});
+      layers.push(layer);object.add(layer.object);sources.tarihi=layer.stats.yapilar.length+' yapı (temsili)'}
+    catch(e){console.warn('[tarihi] yapılar kurulamadı',e.message);sources.tarihi='kurulamadı'}
+  }
 
   // OSM verisi yoksa ya da bir yapı bulunamadıysa Saat Kulesi (başlangıç) ve BİLSEM (kalkış) bölge dosyasından gelir
   const raw=[...(landmarkData?.landmarks||[])];
   if(!raw.some(l=>l.id==='saat-kulesi'))raw.push({id:'saat-kulesi',name:'Saat Kulesi',lon:region.origin.lon,lat:region.origin.lat});
   if(bilsemPlace?.fen&&!raw.some(l=>l.id==='fen-lisesi'))raw.push({id:'fen-lisesi',name:bilsemPlace.fen.building.name,x:bilsemPlace.fen.building.x,z:bilsemPlace.fen.building.z});
   if(!raw.some(l=>l.id==='bilsem')){const b=bilsemPlace?.building;if(b)raw.push({id:'bilsem',name:'Altıeylül BİLSEM',x:b.x,z:b.z});else if(homeLocal)raw.push({id:'bilsem',name:'Altıeylül BİLSEM',x:homeLocal.x,z:homeLocal.z})}
+  // tarihi yapı modeli varsa inceleme kamerası modelin merkezine bakar (Saat Kulesi: Zafer Hoca'nın noktası)
+  for(const s of heritagePlace?.structures||[]){const l=raw.find(r=>r.id===s.id);if(l){l.x=s.target.x;l.z=s.target.z}else raw.push({id:s.id,name:s.name,x:s.target.x,z:s.target.z})}
   const landmarks={landmarks:raw.map(l=>{const q=Number.isFinite(l.x)?l:lonLatToLocal(l.lon,l.lat);return {...l,x:q.x,z:q.z}})};
   if(quality)environment.setQuality?.(quality);
   onProgress(1,'Hazır');

@@ -4,14 +4,53 @@
 dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturuma yapıştırılacak başlangıç mesajı:
 `CLAUDE-BALIKESIR-BASLANGIC-MESAJI.txt`.
 
-## Kısa durum (3 Kasım 2026, 23:00)
+## Kısa durum (4 Kasım 2026, 02:00)
 
 - Canlı: https://altieylul-bvlos-balikesir.vercel.app · depo `AnubisZk/altieylul-bvlos-balikesir` (main → Vercel otomatik).
 - Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası ve
   arkasındaki Altıeylül Fen Lisesi (MEB tip projesi, yordamsal, temsili) + BİLSEM kamelyası (Meshy), BİLSEM bahçesi ve
-  Atatürk köşesi, Fen Lisesi beton avlusu, kalkış pedi BİLSEM ön bahçesinde, Saat Kulesi çevresinde 6 noktalı tur,
+  Atatürk köşesi, Fen Lisesi beton avlusu, tarihi yapılar (Saat Kulesi, Kuva-yi Milliye Müzesi, Zağnos Paşa Camii,
+  Balıkesir Garı; yordamsal, temsili), kalkış pedi BİLSEM ön bahçesinde, Saat Kulesi çevresinde 6 noktalı tur,
   Balıkesir müziği.
 - Açık işler: aşağıda "Sıradaki adımlar".
+
+## 4 Kasım 2026, 02:00 · Tarihi yapılar: Saat Kulesi, Kuva-yi Milliye Müzesi, Zağnos Paşa Camii, Balıkesir Garı
+
+- Zafer Hoca fotoğrafları ve Google Haritalar noktalarını gönderdi. `drone/tarihi-yapilar.js` (yeni) yordamsal, temsili
+  modeller kurar; veri `data/bal/tarihi-yapilar.json` (konum, yön, ölçü, kaynak notları). Her yapının çevresi koruma
+  alanıdır (Google ağı atılır, zemin bizim: `createYard` kaplaması), ayak izine düşen OSM kutuları ayıklanır, çarpışma
+  yerel kutu/silindir/kubbe parçalarıyla. Yapı inceleme menüsünde dördü de modelin ortasına bakar (`mission.js HERITAGE`
+  lookHeight/elev; "Balıkesir Garı" eklendi).
+- **Saat Kulesi**: Zafer Hoca'nın noktası 39.6456818, 27.8792595 (Google yer kaydının ~5 m batısı; `region.json origin`
+  değişmedi, harita merkezi olarak kalır). Kare taş gövde, üç kat: kör kemer, tuğra ve kitabe; balkonlu kapı, yelpaze
+  alınlık; dört yüzde saat (akrep/yelkovan tarayıcının saatini gösterir), modiyonlu saçak; sivri kemerli açık çan katı,
+  kırma çatı, küçük kubbe ve paratoner. ~20 m (kaynak: 20 m, 1827). Moloz taş istinat duvarlı kaide ve demir parmaklık.
+  Kaide köşesine düşen iki küçük OSM kutusu ayıklandı.
+- **Kuva-yi Milliye Müzesi**: OSM ayak izi (kulenin ~34 m kuzeydoğusu, ~4 m aşağısı; Zafer Hoca'nın müze koordinatı
+  kuleninkiyle aynı yapıştırılmıştı). Ön cephe Anafartalar Caddesi'ne (ÖGD 108°). Beyaz sıvalı zemin kat (demir
+  parmaklıklı pencereler), koyu ahşap kaplamalı üst kat ve ortada çıkma, geniş saçaklı koyu kırma çatı; kemerli giriş
+  saçağı, sütunlar, krem kapılar ve "MÜZE" tabelası, taş merdiven ve vazolar; bahçede düz yol, yeşil fenerler, fıstık
+  çamı, antik taşlar; caddede taş kemerli kapı ("KUVA-YI MİLLİYE MÜZESİ", kafesli korkuluk, pirinç levha, dikey "MÜZE"),
+  iki yanda moloz duvar üstünde yeşil parmaklık. Kapının kemerinin altından drone geçebilir. Zemin kat ön cepheye göre;
+  arka yokuş yukarı (bina yamaca gömülür). Hacı Ali Camii (OSM kutusu) koruma alanı dışında bırakıldı.
+- **Zağnos Paşa Camii**: OSM ayak izi (33 × 33.6 m) ve kubbe parçaları; Zafer Hoca'nın noktası (39.648934, 27.879955)
+  kuzey cephenin önüne düşer. Kaynaklar (TDV İslâm Ansiklopedisi, Vikipedi): tuğla ve kesme taş, dişli taş plastırlar,
+  üç sıra yuvarlak kemerli pencere (alt sıra yeşil demir parmaklıklı, üstler kafesli), cephelerin ortasında basık kemerli
+  tonoz alınlıkları, dört köşe kubbesi ve dört köşe kulesi, sekizgen kasnak üstünde ana kubbe (Ø12.8 m) ve alem; kuzey,
+  doğu ve batıda kurşun çatılı sundurmalar; güneyde hafif çıkıntılı mihrap; kuzeybatıda tek şerefeli yivli minare
+  (~40 m); kuzey avluda on iki sütunlu şadırvan ve çınar; güneyde sekizgen kubbeli türbe (OSM'deki 537 m² türbe kutusu
+  yerine) ve çimli hazire.
+- **Balıkesir Garı**: OSM ayak izi (23.7 × 13.6 m) ve iki yanındaki tek katlı OSM yapıları (kanatlar). Ön cephe
+  kuzeybatıda caddeye (326°), peron ve sundurma güneydoğuda raylara. Kesme taş, dişli köşe taşları; ortada alınlıklı
+  çıkma blok ("TCDD", çift pencere, arka alınlıkta "BALIKESİR"), üç kemerli kapı ve "BALIKESİR GAR" yazısı; yanlarda
+  kırma çatılı iki katlı bölümler ve bacalar; tek katlı kanatlar; sarı çizgili peron, beyaz çelik sundurma; bayrak.
+  Arka alınlıktaki "1912" yazısı temsilidir (Osmanlıca kitabe yerine).
+- Koruma alanı sınırı 4 → 8 (`keep-zone.js MAX_KEEP`; şimdi 7: ped, BİLSEM bahçesi, Fen avlusu, kule, müze, cami, gar).
+- `npm test` 88/88 (yeni test: konumlar Zafer Hoca'nın noktaları ve OSM ile uyumlu, kule ~20 m, minare ~40 m, koruma
+  alanları ayrık, Hacı Ali Camii korunur, OSM kutuları ayıklanır, kapıdan geçilir). Headless'ta dört yapı yakından ve
+  sahnede kontrol edildi; Google katmanıyla uyum canlıda bakılmalı.
+- Atatürk Parkı: Zafer Hoca'nın noktası (39.643690, 27.886327) parkın batı girişinde; inceleme kamerası OSM park
+  alanının ortasına bakmaya devam ediyor. Park için model yapılmadı (ağaçlar, yollar, stadyum istenirse sonraki iş).
 
 ## 3 Kasım 2026, 23:55 · Bahçe, Atatürk köşesi, Google tümseği düzeltmesi
 
@@ -203,6 +242,8 @@ ve kalkışa 250 m içindeki OSM adlarını yazar. OSM'deki Saat Kulesi konumu G
 
 ## Sıradaki adımlar
 
+0. Zafer Hoca canlıda tarihi yapılara baksın: yerleri (kaydırma `tarihi-yapilar.json → center`, yön `front`), Google
+   zemini ile birleşme, kule ve minare boyu. Atatürk Parkı için ne istendiği (ağaçlar, yollar, stadyum?).
 0. Zafer Hoca canlıda iki okula baksın: cephe önündeki Google tümseği kalktı mı, bahçe kenarında Google zemini ile
    basamak var mı, Fen Lisesi'nin yeri (±5 m; kaydırma yalnız `bilsem.json → fenLisesi.center`), Atatürk köşesinin ve
    bahçe düzeninin yeri (`bilsem.json → bahce`). Batıdaki boş alan ve duvar henüz yok (ölçü bekleniyor).
@@ -211,8 +252,7 @@ ve kalkışa 250 m içindeki OSM adlarını yazar. OSM'deki Saat Kulesi konumu G
    `region.json home` değişir; testler (`tests/balikesir.test.mjs`) tutarlılığı denetler.
 2. Okul bilgisayarında açılış süresi ve FPS (22 135 bina). Yavaşsa küçük binalar / eğitim çemberi dışı binalar elenir
    (`prepare-data.mjs` veya `city-world.js` içinde süzgeç).
-3. Saat Kulesi OSM'de adıyla yok: konumu yerinde/uydu ile doğrula; istenirse Saat Kulesi modeli (Meshy) +
-   `keep-zone` dikdörtgeni (en çok 4 koruma alanı: ped, bina, kamelya + 1).
+3. (4 Kasım'da yapıldı: Saat Kulesi Zafer Hoca'nın noktasında modellendi, koruma alanı eklendi.)
 4. Kılavuz seslerinin (paragraf 0, 2, 3, 19) Balıkesir metniyle yeniden üretimi (`drone/guide-audio.json` listesi).
 5. Bina yükseklikleri çoğunlukla tahmini (10 m); istenirse mahalleye göre kat sayısı varsayımı.
 

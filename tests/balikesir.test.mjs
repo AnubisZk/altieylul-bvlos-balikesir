@@ -60,7 +60,7 @@ test('Ankara’ya özgü dosyalar pakette yok, açılış haritası Saat Kulesi 
 
 import {setGeoRegion} from '../src/geo.js';
 import {bilsemPlacement} from '../drone/bilsem.js';
-import {keepZones} from '../drone/keep-zone.js';
+import {keepZones,MAX_KEEP} from '../drone/keep-zone.js';
 test('BİLSEM binası: ölçülen konum ve ölçüde, kalkış pedi ön avluda, kamelya binanın önünde ve batısında',()=>{
   setGeoRegion(region,u);
   const data=JSON.parse(fs.readFileSync('data/bal/bilsem.json','utf8'));
@@ -74,7 +74,7 @@ test('BİLSEM binası: ölçülen konum ve ölçüde, kalkış pedi ön avluda, 
   assert.ok(Math.hypot(k.x-home.x,k.z-home.z)>8,'kamelya pede çok yakın değil');
   // Google kalibrasyon noktası (ped +12 m doğu) bina ve kamelya dışında
   assert.ok(!p.boxes.some(x=>x.inside(home.x+12,home.z,1)));
-  const zones=keepZones({home,extra:p.keepZones});assert.ok(zones.length<=4,'en fazla 4 koruma alanı (keep-zone.js MAX_KEEP)');
+  const zones=keepZones({home,extra:p.keepZones});assert.ok(zones.length<=MAX_KEEP,'koruma alanı sınırı (keep-zone.js MAX_KEEP)');
   // bahçe koruma alanı binayı, kamelyayı ve pedi içine alır (Google'ın bina tümseği cephe önünde kalmasın)
   const inZone=(zn,x,z,m=0)=>{const dx=x-zn.c[0],dz=z-zn.c[1];return Math.abs(dx*zn.u[0]+dz*zn.u[1])<=zn.h[0]-m&&Math.abs(-dx*zn.u[1]+dz*zn.u[0])<=zn.h[1]-m};
   for(const [x,z] of [[b.x-b.hu,b.z-b.hv],[b.x+b.hu,b.z+b.hv],[k.x,k.z],[home.x,home.z]])assert.ok(inZone(p.keepZones[0],x,z,5),'bahçe alanı');
@@ -112,6 +112,36 @@ test('Fen Lisesi: BİLSEM arkasında (kuzey), aynı tip proje aynalı, araların
   assert.equal(f.plan.s,-1,'Fen Lisesi aynalı: merdiven bloğu doğuda');assert.equal(p.plan.s,1,'BİLSEM: merdiven bloğu batıda');
   assert.ok(f.plan.top<=data.building.height+0.01);
   assert.ok(!f.building.inside(home.x,home.z,20),'ped Fen Lisesi\'nden uzak');
-  assert.ok(keepZones({home,extra:p.keepZones}).length<=4,'ped + BİLSEM bahçesi + Fen avlusu ≤ 4 koruma alanı');
+  assert.ok(keepZones({home,extra:p.keepZones}).length<=MAX_KEEP,'ped + BİLSEM bahçesi + Fen avlusu');
   assert.ok(HERITAGE.some(h=>h.id==='fen-lisesi'));
+});
+
+import {heritagePlacement} from '../drone/tarihi-yapilar.js';
+import {lonLatToLocal} from '../src/geo.js';
+test('Tarihi yapılar: dört yapı yerinde, OSM ayak izleriyle uyumlu, koruma alanları sınırda ve birbirinden ayrı',()=>{
+  setGeoRegion(region,u);
+  const data=JSON.parse(fs.readFileSync('data/bal/tarihi-yapilar.json','utf8')),hp=heritagePlacement(data,()=>150);
+  const bp=bilsemPlacement(JSON.parse(fs.readFileSync('data/bal/bilsem.json','utf8')),()=>160);
+  const S=Object.fromEntries(hp.structures.map(s=>[s.id,s]));
+  assert.deepEqual(Object.keys(S).sort(),['gar','kuvayi-milliye','saat-kulesi','zaganos-pasa']);
+  for(const s of hp.structures)assert.ok(HERITAGE.some(h=>h.id===s.id),s.id+' inceleme listesinde');
+  const all=keepZones({home,extra:[...bp.keepZones,...hp.keepZones]});assert.ok(all.length<=MAX_KEEP,`${all.length} koruma alanı`);
+  // Saat Kulesi Zafer Hoca'nın noktasında; müze ~34 m kuzeydoğusunda ve aşağıda (OSM)
+  const k=lonLatToLocal(27.8792595,39.6456818);assert.ok(Math.hypot(S['saat-kulesi'].c.x-k.x,S['saat-kulesi'].c.z-k.z)<0.5);
+  const m=S['kuvayi-milliye'].c,dm=Math.hypot(m.x-k.x,m.z-k.z);assert.ok(dm>25&&dm<45&&m.x>k.x&&m.z<k.z,`müze kuleye ${dm.toFixed(0)} m`);
+  // cami OSM ortasında, Zafer Hoca'nın noktası kuzey cephenin önünde; gar OSM ortasında
+  const cn=lonLatToLocal(27.879955,39.648934),[ca,cb]=S['zaganos-pasa'].local(cn.x,cn.z);assert.ok(cb>16&&cb<25&&Math.abs(ca)<8,`cami noktası a=${ca.toFixed(1)} b=${cb.toFixed(1)}`);
+  // minare ~40 m, kule ~20 m
+  const top=(s,a,b)=>{const p=S[s].world(a,b);return hp.heightAt(p.x,p.z)-150};
+  const mt=top('zaganos-pasa',...S['zaganos-pasa'].lay.mc);assert.ok(mt>36&&mt<44,`minare ${mt.toFixed(1)} m`);
+  const kt=top('saat-kulesi',0,0);assert.ok(kt>18&&kt<22,`kule ${kt.toFixed(1)} m`);
+  // koruma alanları birbirine ve kalkış pedine değmez; müze alanı Hacı Ali Camii'ne değmez
+  const inZone=(zn,x,z,m=0)=>{const dx=x-zn.c[0],dz=z-zn.c[1];return Math.abs(dx*zn.u[0]+dz*zn.u[1])<=zn.h[0]+m&&Math.abs(-dx*zn.u[1]+dz*zn.u[0])<=zn.h[1]+m};
+  for(const z of hp.keepZones)assert.ok(!inZone(z,home.x,home.z,20));
+  for(let i=0;i<hp.keepZones.length;i++)for(let j=i+1;j<hp.keepZones.length;j++){const a=hp.keepZones[i],b=hp.keepZones[j];assert.ok(Math.hypot(a.c[0]-b.c[0],a.c[1]-b.c[1])>Math.hypot(...a.h)*0.5+Math.hypot(...b.h)*0.5||!inZone(a,...b.c,0),'alanlar ayrık')}
+  const bl=JSON.parse(fs.readFileSync('data/bal/buildings.json','utf8')).buildings,hac=bl.find(b=>b.id==='w319067736');
+  assert.ok(hac.ring.every(([x,z])=>!inZone(hp.keepZones[1],x,z)),'Hacı Ali Camii müze alanı dışında');assert.ok(!hp.removes(hac.ring));
+  for(const id of ['w232389727','w211424804','w540147154','w1150381136','w206732721','w675941510','w675941511'])assert.ok(hp.removes(bl.find(b=>b.id===id).ring),id+' ayıklanır');
+  // kapıdan geçilir, kemerin üstüne çarpılır
+  const g=S['kuvayi-milliye'],gp=g.world(0,g.lay.gate);assert.equal(hp.hitTest(gp.x,150+2,gp.z,0.2),null);assert.ok(hp.hitTest(gp.x,150+5.5,gp.z,0.2));
 });

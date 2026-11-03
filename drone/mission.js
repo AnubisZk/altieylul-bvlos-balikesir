@@ -11,10 +11,11 @@ export const createDefaultRoute = home => OBSERVATION_POINTS.map(([x,z])=>({x:ho
 // Konumlar OSM verisinden (tools/balikesir/prepare-data.mjs) gelir; bulunamayan yapı listede görünür ama kamera
 // açılırken atlanır.
 export const HERITAGE = [
-  {id:'saat-kulesi',name:'Saat Kulesi',distance:90},
-  {id:'zaganos-pasa',name:'Zağnos Paşa Camii',distance:140},
-  {id:'kuvayi-milliye',name:'Kuva-yi Milliye Müzesi',distance:110},
+  {id:'saat-kulesi',name:'Saat Kulesi',distance:60,lookHeight:11,elev:0.35},
+  {id:'zaganos-pasa',name:'Zağnos Paşa Camii',distance:120,lookHeight:15,elev:0.4},
+  {id:'kuvayi-milliye',name:'Kuva-yi Milliye Müzesi',distance:70,lookHeight:5,elev:0.4},
+  {id:'gar',name:'Balıkesir Garı',distance:90,lookHeight:6,elev:0.4},
   {id:'ataturk-parki',name:'Atatürk Parkı',distance:300},
-  {id:'bilsem',name:'Altıeylül BİLSEM',distance:120},
-  {id:'fen-lisesi',name:'Altıeylül Fen Lisesi',distance:120},
+  {id:'bilsem',name:'Altıeylül BİLSEM',distance:110,lookHeight:9,elev:0.45},
+  {id:'fen-lisesi',name:'Altıeylül Fen Lisesi',distance:110,lookHeight:9,elev:0.45},
 ];

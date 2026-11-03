@@ -1,0 +1,56 @@
+{
+  "note": "Balıkesir tarihi yapıları: yordamsal, temsili modeller (drone/tarihi-yapilar.js). Biçim Zafer Hoca'nın fotoğraflarından (4 Kasım 2026); konum Zafer Hoca'nın Google Haritalar noktaları ve OSM ayak izleri, ölçüler OSM'den, yükseklikler kaynaklardan ve fotoğraf oranlarından (yaklaşık). front: yapının ön cephesinin baktığı yön (derece, kuzeyden saat yönünde). Yerel çerçeve: a cephe boyunca, b öne doğru (metre). zone: koruma alanı (Google ağı atılır, zemin bizim). Kimlikler drone/mission.js HERITAGE ile aynıdır.",
+  "yapilar": {
+    "saat-kulesi": {
+      "tip": "saat-kulesi",
+      "name": "Saat Kulesi",
+      "center": [
+        27.8792595,
+        39.6456818
+      ],
+      "front": 170,
+      "base": 5.4,
+      "podium": 8.4,
+      "note": "Konum Zafer Hoca'nın Google Haritalar noktası (39.6456818, 27.8792595; Google yer kaydının ~5 m batısı). Kare gövde, üç kat, dört yüzde saat ve balkon, açık çan katı; ~20 m (kaynaklarda 20 m, 1827). Taş istinat duvarlı ve demir parmaklıklı kaide üzerinde. Yön çevredeki OSM binalarından (80°/170°)."
+    },
+    "kuvayi-milliye": {
+      "tip": "muze",
+      "name": "Kuva-yi Milliye Müzesi",
+      "osm": "way/232389727",
+      "center": [
+        27.8795712,
+        39.6458401
+      ],
+      "front": 108,
+      "width": 18.2,
+      "depth": 15.2,
+      "gate": 36.5,
+      "note": "OSM ayak izi (Balıkesir Kuvâ-yi Milliye Müzesi), Saat Kulesi'nin ~34 m kuzeydoğusu ve ~4 m aşağısı. Ön cephe Anafartalar Caddesi'ne bakar; caddedeki taş kemerli kapıdan merdivenlere düz yol, sağda Hacı Ali Camii (OSM kutusu, koruma alanı dışında). İki kat: beyaz sıvalı zemin kat, koyu ahşap kaplamalı üst kat ve ortada çıkma, geniş saçaklı kırma çatı; kemerli giriş saçağı, taş merdiven, yeşil fenerler, fıstık çamı."
+    },
+    "zaganos-pasa": {
+      "tip": "cami",
+      "name": "Zağnos Paşa Camii",
+      "osm": "way/211424804",
+      "center": [
+        27.879984,
+        39.6487696
+      ],
+      "front": 342,
+      "half": 16.5,
+      "note": "OSM ayak izi (33 × 33.6 m) ve kubbe parçaları (ana kubbe Ø12.3 m, dört köşe kulesi Ø3.8 m); Zafer Hoca'nın noktası (39.648934, 27.879955) kuzey cephenin önüne düşer. TDV İslâm Ansiklopedisi ve Vikipedi: kareye yakın plan, tuğla ve kesme taş, dişli taş plastırlar, üç sıra yuvarlak kemerli pencere; ana kubbe sekizgen kasnakta, dört köşe kubbesi; doğu, batı ve kuzeyde basık kemerli sundurma; mihrap güneyde hafif çıkıntılı; tek şerefeli minare kuzeybatı köşesinde; şadırvan avluda; türbe güneyde, sekizgen ve kubbeli. Yükseklikler yaklaşık (minare ~41 m)."
+    },
+    "gar": {
+      "tip": "gar",
+      "name": "Balıkesir Garı",
+      "osm": "way/206732721",
+      "center": [
+        27.8883913,
+        39.6470802
+      ],
+      "front": 326,
+      "width": 23.7,
+      "depth": 13.6,
+      "note": "OSM ayak izi (Balıkesir Garı) ve iki yanındaki tek katlı OSM yapıları (kanatlar); Zafer Hoca'nın noktası (39.647305, 27.888386) garın önündeki kavşakta. Ön cephe kuzeybatıda caddeye, peron ve sundurma güneydoğuda raylara bakar. Kesme taş, iki kat; ortada alınlıklı (TCDD) çıkma blok, üç kemerli kapı ve 'BALIKESİR GAR' yazısı; yanlarda kırma çatılı iki katlı bölümler, uçlarda tek katlı kanatlar; bayrak."
+    }
+  }
+}
