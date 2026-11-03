@@ -40,7 +40,7 @@
     "note": "Görüntüde kamelya cepheden ~15 m önde, binanın batı ucunda (Meshy'deki yerinden ileride)."
   },
   "bahce": {
-    "note": "Zafer Hoca'nın BİLSEM fotoğrafı ve uydu görüntüsü: binanın önünde açık renk taş döşeme, önde ve batıda çim, çimde çam fidanları, döşemede banklar, kamelya döşemenin ön-batı köşesinde; Atatürk büstü ve bayrak. Koordinatlar binaya göre yerel metre: a doğu (bina ekseni), b güney (ön cephe). zone: koruma alanı (Google ağı atılır, zemin bizim) — bina kutusundan yanlara side, arkaya back, öne front metre. plaza: taş döşeme dikdörtgenleri [a0,a1,b0,b1], geri kalanı çim. pines: [a,b,boy], saplings: [a,b], benches: [a,b,dönüş°]. Ped (-7.5, 33) çevresi boş tutulur.",
+    "note": "Zafer Hoca'nın BİLSEM fotoğrafı ve uydu görüntüsü: binanın önünde açık renk taş döşeme, önde ve batıda çim, çimde çam fidanları, döşemede banklar, kamelya döşemenin ön-batı köşesinde; Atatürk köşesi (girişin solu). Koordinatlar binaya göre yerel metre: a doğu (bina ekseni), b güney (ön cephe). zone: koruma alanı (Google ağı atılır, zemin bizim) — bina kutusundan yanlara side, arkaya back, öne front metre. plaza: taş döşeme dikdörtgenleri [a0,a1,b0,b1], geri kalanı çim. pines: [a,b,boy], saplings: [a,b], benches: [a,b,dönüş°]. Ped (-7.5, 33) çevresi boş tutulur.",
     "zone": {
       "side": 8,
       "back": 8,
@@ -166,11 +166,11 @@
     ],
     "ataturk": {
       "at": [
-        -12,
-        24
+        -3.4,
+        10.35
       ],
-      "flag": true,
-      "note": "Atatürk köşesi: kaide, büst (temsili), plaket, bayrak direği büstün sağ arkasında."
+      "flags": 2,
+      "note": "Atatürk köşesi girişin solunda, cepheye dayalı (Zafer Hoca'nın fotoğrafı): siyah daralan kaide, altın \"NE MUTLU TÜRKÜM DİYENE\", altın büst (temsili), iki yanında 6 m paslanmaz bayrak direği. flags: 0-2."
     }
   },
   "model": {

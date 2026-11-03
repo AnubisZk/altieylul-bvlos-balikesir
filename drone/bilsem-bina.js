@@ -268,7 +268,7 @@ function signTexture(text,anisotropy){
 }
 
 /** Türk bayrağı (Türk Bayrağı Kanunu oranları), hafif dalgalanır. */
-export function createFlag(anisotropy){
+export function createFlag(anisotropy,{L=2.1,H=1.4}={}){
   const G=256,cv=document.createElement('canvas');cv.width=G*1.5;cv.height=G;const g=cv.getContext('2d');
   g.fillStyle='#e30a17';g.fillRect(0,0,cv.width,cv.height);
   const circ=(x,y,r,c)=>{g.fillStyle=c;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()};
@@ -276,7 +276,7 @@ export function createFlag(anisotropy){
   const sx=(0.3625+1/3+0.125)*G,sy=0.5*G,R=0.125*G,ri=R*0.382;g.fillStyle='#ffffff';g.beginPath();
   for(let i=0;i<10;i++){const a=Math.PI+i*Math.PI/5,rr=i&1?ri:R;g.lineTo(sx+Math.cos(a)*rr,sy+Math.sin(a)*rr)}g.closePath();g.fill();
   const tex=new T.CanvasTexture(cv);tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=anisotropy;
-  const L=2.1,H=1.4,geo=new T.PlaneGeometry(L,H,14,4).translate(L/2,0,0);
+  const geo=new T.PlaneGeometry(L,H,14,4).translate(L/2,0,0);
   const m=new T.MeshStandardMaterial({map:tex,side:T.DoubleSide,roughness:0.85});m.name='bilsem-flag';
   const mesh=new T.Mesh(geo,m);mesh.name='bilsem-flag';mesh.castShadow=true;
   const p=geo.attributes.position,x0=Float32Array.from({length:p.count},(_,i)=>p.getX(i));let t=0;

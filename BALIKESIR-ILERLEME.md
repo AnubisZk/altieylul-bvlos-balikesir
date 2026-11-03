@@ -26,10 +26,11 @@ dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturu
 - BİLSEM bahçesi Zafer Hoca'nın BİLSEM fotoğrafından: binanın önünde açık renk taş döşeme (kamelya döşemenin ön-batı
   köşesinde), önde ve batıda çim, çimde 10 çam fidanı ve 4 genç ağaç, 4 bank; arka ve doğu taş döşeme. Fen Lisesi:
   binanın çevresi beton avlu. Düzen `bilsem.json → bahce` (yerel metre, a doğu / b güney), elle değiştirilebilir.
-- **Atatürk köşesi** (Zafer Hoca: "Atatürk büstü ve bayrak olacak"): binanın ~14 m önünde, kamelya ile giriş arasında
-  (`bahce.ataturk.at` = [-12, 24]); basamak, mermer kaide, "ATATÜRK" plaketi, bronz büst (temsili genel büst biçimi,
-  portre değil), sağ arkasında 9 m bayrak direği ve dalgalanan bayrak. BİLSEM'in giriş önündeki bayrak direği kaldırıldı
-  (`style.flag: false`); Fen Lisesi'nin giriş bayrağı duruyor.
+- **Atatürk köşesi** (Zafer Hoca: "Atatürk büstü ve bayrak olacak"; 4 Kasım 00:15'te yeri ve görünüşü fotoğrafla
+  düzeltildi): girişin solunda, cepheye dayalı (`bahce.ataturk.at` = [-3.4, 10.35]). Siyah, yukarı daralan kaide
+  (1.3 m), ön yüzünde altın "NE MUTLU TÜRKÜM DİYENE", altın büst (temsili genel büst biçimi, portre değil), iki yanında
+  6 m paslanmaz bayrak direği ve dalgalanan Türk bayrakları (girişten uzağa, batıya açılır; `flags`: 0–2). BİLSEM'in
+  giriş önündeki eski bayrak direği kaldırıldı (`style.flag: false`); Fen Lisesi'nin giriş bayrağı duruyor.
 - Çarpışma: büst, bayrak direği, çam fidanları ve ağaçlar engel (pede en az 4 m + yarıçap; test denetler).
 - `npm test` 87/87; headless'ta ped kamerası ve yapı inceleme görünümü kontrol edildi.
 

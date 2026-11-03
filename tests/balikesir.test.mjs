@@ -78,7 +78,9 @@ test('BİLSEM binası: ölçülen konum ve ölçüde, kalkış pedi ön avluda, 
   // bahçe koruma alanı binayı, kamelyayı ve pedi içine alır (Google'ın bina tümseği cephe önünde kalmasın)
   const inZone=(zn,x,z,m=0)=>{const dx=x-zn.c[0],dz=z-zn.c[1];return Math.abs(dx*zn.u[0]+dz*zn.u[1])<=zn.h[0]-m&&Math.abs(-dx*zn.u[1]+dz*zn.u[0])<=zn.h[1]-m};
   for(const [x,z] of [[b.x-b.hu,b.z-b.hv],[b.x+b.hu,b.z+b.hv],[k.x,k.z],[home.x,home.z]])assert.ok(inZone(p.keepZones[0],x,z,5),'bahçe alanı');
-  for(const o of p.yardObstacles){assert.ok(Math.hypot(o.x-home.x,o.z-home.z)>o.r+4,o.name+' pede yakın');assert.ok(!b.inside(o.x,o.z,1),o.name+' binada');assert.ok(!k.inside(o.x,o.z,0.5),o.name+' kamelyada')}
+  const inVol=(x,z,m)=>{const [la,lb]=b.local(x,z),xa=p.plan.s*la;return p.plan.vols.some(v=>xa>=v.x0-m&&xa<=v.x1+m&&lb>=v.z0-m&&lb<=v.z1+m)};
+  for(const o of p.yardObstacles){assert.ok(Math.hypot(o.x-home.x,o.z-home.z)>o.r+4,o.name+' pede yakın');assert.ok(!inVol(o.x,o.z,o.r),o.name+' binanın içinde');assert.ok(!k.inside(o.x,o.z,0.5),o.name+' kamelyada')}
+  assert.equal(p.yardObstacles.filter(o=>o.name==='bayrak direği').length,2,'büstün iki yanında direk');
   assert.ok(p.yardObstacles.some(o=>o.name==='Atatürk büstü')&&p.yardObstacles.some(o=>o.name==='bayrak direği'));
 });
 

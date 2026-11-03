@@ -3,8 +3,10 @@
 // kabarık bir tümsek olarak verir ve tümseğin eteği (kaymış çatı fotoğrafıyla) cephenin önünde havada asılı kalıyordu.
 // Alanın içinde zemin bizim: arazi ağının üçgenlerine birebir oturan kaplama (surface), 4 cm yukarıda + polygonOffset.
 // BİLSEM (Zafer Hoca'nın fotoğrafı): binanın önünde açık renk taş döşeme, önde ve batıda çim, çimde çam fidanları ve
-// genç ağaçlar, döşemede banklar; kamelya döşemenin ön-batı köşesinde (Meshy, yeri değişmez); Atatürk köşesi (büst,
-// kaide, bayrak direği). Büst temsilidir (genel büst biçimi, portre değil). Fen Lisesi: binanın çevresi beton avlu.
+// genç ağaçlar, döşemede banklar; kamelya döşemenin ön-batı köşesinde (Meshy, yeri değişmez). Atatürk köşesi girişin
+// solunda, cepheye dayalı (Zafer Hoca'nın fotoğrafı): siyah, yukarı daralan kaide, önünde altın "NE MUTLU TÜRKÜM
+// DİYENE", altın büst, iki yanında paslanmaz bayrak direği. Büst temsilidir (genel büst biçimi, portre değil).
+// Fen Lisesi: binanın çevresi beton avlu.
 // Yerel çerçeve okulunki: a bina ekseni (doğu), b ön (güney); nesneler bina merkezinde yaw ile dönen bir gruptadır.
 import * as T from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
@@ -28,11 +30,13 @@ export function yardObstacles(spec,world){
   for(const [a,b,h] of spec?.pines||[])out.push({...world(a,b),r:0.3*h,h,name:'çam fidanı'});
   for(const [a,b] of spec?.saplings||[])out.push({...world(a,b),r:0.6,h:3.4,name:'ağaç'});
   const at=spec?.ataturk?.at;
-  if(at){out.push({...world(at[0],at[1]),r:0.75,h:2.9,name:'Atatürk büstü'});
-    if(spec.ataturk.flag!==false){const [pa,pb]=ataturkPole(at);out.push({...world(pa,pb),r:0.12,h:9.2,name:'bayrak direği'})}}
+  if(at){out.push({...world(at[0],at[1]),r:0.55,h:2.1,name:'Atatürk büstü'});
+    for(const [pa,pb] of ataturkPoles(spec.ataturk))out.push({...world(pa,pb),r:0.1,h:POLE_H+0.1,name:'bayrak direği'})}
   return out;
 }
-const ataturkPole=at=>[at[0]+2.3,at[1]-1.3];
+const POLE_H=6;
+/** Büstün iki yanındaki direkler (flags: 0, 1 ya da 2). */
+const ataturkPoles=({at,flags=2})=>[[at[0]-1.05,at[1]-0.05],[at[0]+1.05,at[1]-0.05]].slice(0,flags);
 
 /**
  * Okul bahçesi/avlusu. surface(x,z): arazi ağının yüksekliği; world(a,b) → {x,z}; yaw/center: bina grubu;
@@ -85,33 +89,39 @@ export function createYard({kind,zone,spec={},world,center,yaw,surface,inBuildin
     part('wood',1.8,0.07,0.45,0,0.45,0);part('wood',1.8,0.32,0.05,0,0.72,-0.2);
     for(const x of [-0.75,0.75]){part('iron',0.06,0.45,0.42,x,0.22,0);part('iron',0.06,0.4,0.05,x,0.65,-0.21)}
   }
-  let flag=null;
+  const flags=[];
   const at=spec.ataturk?.at;
   if(at){const [a,b]=at,y=ground(a,b);
-    add('stone',new T.BoxGeometry(3.4,0.6,3.4),a,y-0.15,b);               // basamak (eğimde gömülür)
-    add('marble',new T.BoxGeometry(1.0,1.9,1.0),a,y+0.15+0.95,b);
-    add('marble',new T.BoxGeometry(1.22,0.12,1.22),a,y+2.11,b);add('marble',new T.BoxGeometry(1.16,0.1,1.16),a,y+0.2,b);
-    const top=y+2.17;
-    add('bronze',new T.SphereGeometry(0.5,20,12).scale(0.95,0.6,0.52),a,top+0.12,b);   // omuzlar
-    add('bronze',new T.CylinderGeometry(0.085,0.1,0.22,12),a,top+0.42,b);              // boyun
-    add('bronze',new T.SphereGeometry(0.17,18,14).scale(1,1.18,1.05),a,top+0.66,b);    // baş
-    const plaque=new T.Mesh(new T.PlaneGeometry(0.66,0.3),new T.MeshStandardMaterial({map:plaqueTexture(anisotropy),roughness:0.5,metalness:0.4}));
-    plaque.material.name='bilsem-plaque';plaque.position.set(a,y+1.55,b+0.506);group.add(plaque);
-    if(spec.ataturk.flag!==false){const [pa,pb]=ataturkPole(at),py=ground(pa,pb);
-      add('steel',new T.CylinderGeometry(0.05,0.08,9,10),pa,py+4.5,pb);add('stone',new T.CylinderGeometry(0.5,0.6,0.3,16),pa,py+0.1,pb);
-      add('steel',new T.SphereGeometry(0.1,12,8),pa,py+9.07,pb);
-      flag=createFlag(anisotropy);flag.mesh.position.set(pa+0.07,py+8.25,pb);group.add(flag.mesh);
+    // kaide: siyah, yukarı daralan (alt 0.95 × 0.74, üst 0.75 × 0.585, 1.3 m), üstünde taşan siyah tabla
+    const PH=1.3,frustum=new T.CylinderGeometry(0.75/Math.SQRT2,0.95/Math.SQRT2,PH,4,1).rotateY(Math.PI/4).scale(1,1,0.78).toNonIndexed();
+    frustum.computeVertexNormals();add('black',frustum,a,y+PH/2,b);
+    add('black',new T.BoxGeometry(0.86,0.06,0.68),a,y+PH+0.03,b);
+    const top=y+PH+0.06;
+    add('gold',new T.BoxGeometry(0.3,0.08,0.24),a,top+0.04,b);
+    add('gold',new T.CylinderGeometry(0.2,0.22,0.1,20).scale(1,1,0.68),a,top+0.13,b);                          // göğüs altı
+    add('gold',new T.SphereGeometry(1,22,12,0,Math.PI*2,0,Math.PI*0.5).scale(0.3,0.25,0.17),a,top+0.18,b);     // omuzlar ve göğüs
+    add('gold',new T.CylinderGeometry(0.055,0.065,0.12,12),a,top+0.47,b);                                      // boyun
+    add('gold',new T.SphereGeometry(0.115,18,14).scale(1,1.25,1.08),a,top+0.62,b);                              // baş
+    // ön yüzdeki yazı: eğik yüze oturan düzlem
+    const tilt=Math.atan((0.37-0.2925)/PH),ty=0.8,tz=0.37-(ty/PH)*(0.37-0.2925)+0.006;
+    const text=new T.Mesh(new T.PlaneGeometry(0.68,0.78),new T.MeshStandardMaterial({map:mottoTexture(anisotropy),roughness:0.35,metalness:0.3}));
+    text.material.name='bilsem-motto';text.material.roughness=0.3;text.material.metalness=0.1;text.rotation.x=-tilt;text.position.set(a,y+ty,b+tz);group.add(text);
+    for(const [pa,pb] of ataturkPoles(spec.ataturk)){const py=ground(pa,pb);
+      add('steel',new T.CylinderGeometry(0.045,0.055,POLE_H,12),pa,py+POLE_H/2,pb);add('steel',new T.BoxGeometry(0.36,0.06,0.36),pa,py+0.03,pb);
+      add('steel',new T.ConeGeometry(0.05,0.16,10),pa,py+POLE_H+0.08,pb);
+      // bayraklar girişten uzağa (batıya) açılır: sağdaki direğin bayrağı giriş cephesine girmesin
+      const f=createFlag(anisotropy,{L:1.5,H:1.0});f.mesh.rotation.y=Math.PI;f.mesh.position.set(pa-0.05,py+POLE_H-0.62,pb);group.add(f.mesh);flags.push(f);
     }
   }
   const M=(name,o)=>{const m=new T.MeshStandardMaterial(o);m.name='bilsem-'+name;return m};
   const look={pine:M('pine',{color:'#2e5a33',roughness:0.95,flatShading:true}),bark:M('bark',{color:'#6b4c35',roughness:0.95}),
     leaf:M('leaf',{color:'#7c9c4a',roughness:0.95,flatShading:true,transparent:true,opacity:0.55}),
     wood:M('bench-wood',{color:'#8a5a35',roughness:0.8}),iron:M('bench-iron',{color:'#2f3133',roughness:0.6,metalness:0.4}),
-    stone:M('plinth-stone',{color:'#d6d1c6',roughness:0.9}),marble:M('marble',{color:'#f1efe9',roughness:0.55}),
-    bronze:M('bronze',{color:'#6e5636',roughness:0.42,metalness:0.65}),steel:M('pole',{color:'#a3a9ae',roughness:0.35,metalness:0.7})};
+    black:M('pedestal',{color:'#141414',roughness:0.3,metalness:0.1}),gold:M('gold',{color:'#cfa63c',roughness:0.3,metalness:0.9}),
+    steel:M('pole',{color:'#c4c9ce',roughness:0.18,metalness:0.9})};
   for(const [k,list] of Object.entries(P)){const g=mergeGeometries(list.map(x=>x.index?x.toNonIndexed():x),false);
     const mesh=new T.Mesh(g,look[k]);mesh.castShadow=k!=='leaf';mesh.receiveShadow=true;mesh.name='bilsem-bahce-'+k;group.add(mesh)}
-  return {object:group,update(dt){flag?.update(dt)}};
+  return {object:group,update(dt){for(const f of flags)f.update(dt)}};
 }
 
 function groundMat(name,map,tile){
@@ -141,9 +151,10 @@ function lawnTexture(anisotropy){
       const x=rnd()*S,y=rnd()*S,s=1+rnd()*(i<120?22:4);g.fillRect(x,y,s,s)}
   },anisotropy);
 }
-function plaqueTexture(anisotropy){
-  const cv=document.createElement('canvas');cv.width=256;cv.height=116;const g=cv.getContext('2d');
-  g.fillStyle='#3a2f20';g.fillRect(0,0,256,116);g.strokeStyle='#c9a54c';g.lineWidth=5;g.strokeRect(6,6,244,104);
-  g.fillStyle='#d8b75a';g.font='bold 44px Georgia, serif';g.textAlign='center';g.textBaseline='middle';g.fillText('ATATÜRK',128,60,220);
+function mottoTexture(anisotropy){
+  const cv=document.createElement('canvas');cv.width=272;cv.height=312;const g=cv.getContext('2d');
+  g.fillStyle='#141414';g.fillRect(0,0,cv.width,cv.height);
+  g.fillStyle='#e0bb4e';g.font='bold 54px "Segoe UI", Arial, sans-serif';g.textBaseline='middle';
+  ['NE','MUTLU','TÜRKÜM','DİYENE'].forEach((w,i)=>g.fillText(w,22,46+i*66,232));
   const t=new T.CanvasTexture(cv);t.colorSpace=T.SRGBColorSpace;t.anisotropy=anisotropy;return t;
 }
