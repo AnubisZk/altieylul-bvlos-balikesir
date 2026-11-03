@@ -37,6 +37,13 @@ başladı; Ankara deposuna ve İstanbul sitelerine yazılmadı.
 - Headless Chrome: sayfa açılıyor, `bvlosState.version = bal-0.1.0`, düz zemin (140 m), drone BİLSEM pedinden
   kalkıyor, sağ harita Saat Kulesi + BİLSEM + rotayı gösteriyor. Google katmanı container'da görünmez (ağ kapalı).
 
+### Yayın (3 Kasım, 17:00)
+
+- Vercel projesi `altieylul-bvlos-balikesir` (prj_MCDlAn2HZIDP1pA2OiUuMs48r9IK, takım team_cQj2sAnuqQqKoymTzVlCgwG8),
+  Node 22.x, build `npm run build`, çıktı `dist`. Kimlik koruması yalnız önizlemelerde; üretim adresi herkese açık.
+- Canlı adres: https://altieylul-bvlos-balikesir.vercel.app (ilk yayın `dcaab88`, düz zemin, `bal-0.1.0`).
+- `GOOGLE_MAPS_TILES_KEY` henüz girilmedi (gerçek şehir düğmesi görünmez).
+
 ## Zafer Hoca'dan beklenen veriler
 
 1. **GLO-30**: `Copernicus_DSM_COG_10_N39_00_E027_00_DEM.tif` (Ankara'daki gibi Copernicus tarayıcısından).
@@ -83,8 +90,7 @@ ve kalkışa 250 m içindeki OSM adlarını yazar. OSM'deki Saat Kulesi konumu G
 
 1. Arazi + OSM verisini işle; tarihi yapı menüsünün (Saat Kulesi, Zağanos Paşa Camii, Kuva-yi Milliye Müzesi,
    Atatürk Parkı, BİLSEM) OSM konumlarını doğrula; gece arama noktasının yeşil alana düştüğünü kontrol et.
-2. Vercel projesi `altieylul-bvlos-balikesir` (GitHub `main` → otomatik üretim yayını, Node 22, build `npm run build`,
-   çıktı `dist`). Önizleme yayınlarında kimlik koruması, üretim adresi herkese açık.
+2. ~~Vercel projesi~~ (açıldı). `main` push → otomatik yayının çalıştığını ilk veri commit'inde doğrula
 3. İsteğe bağlı: fotoğraftan temsili BİLSEM binası (beyaz cephe, kiremit renkli pencere bantları, kamelya) ve
    Saat Kulesi modeli; eklenirse `keep-zone.js` dikdörtgeni ve inceleme kamerası ayarı.
 4. Kılavuz seslerinin (0, 2, 3, 19) yeniden üretimi; Balıkesir müziği.
