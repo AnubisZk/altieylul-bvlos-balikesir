@@ -28,8 +28,8 @@ dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturu
   binanın çevresi beton avlu. Düzen `bilsem.json → bahce` (yerel metre, a doğu / b güney), elle değiştirilebilir.
 - **Atatürk köşesi** (Zafer Hoca: "Atatürk büstü ve bayrak olacak"; 4 Kasım 00:15'te yeri ve görünüşü fotoğrafla
   düzeltildi): girişin solunda, cepheye dayalı (`bahce.ataturk.at` = [-3.4, 10.35]). Siyah, yukarı daralan kaide
-  (1.3 m), ön yüzünde altın "NE MUTLU TÜRKÜM DİYENE", altın büst (temsili genel büst biçimi, portre değil), iki yanında
-  6 m paslanmaz bayrak direği ve dalgalanan Türk bayrakları (girişten uzağa, batıya açılır; `flags`: 0–2). BİLSEM'in
+  (1.3 m), ön yüzünde altın "NE MUTLU TÜRKÜM DİYENE", altın büst (temsili genel büst biçimi, portre değil). Tek bayrak
+  (Zafer Hoca): büstün girişe yakın (doğu) yanında 6 m paslanmaz direk, bayrak batıya açılır (`poles: ["east"]`). BİLSEM'in
   giriş önündeki eski bayrak direği kaldırıldı (`style.flag: false`); Fen Lisesi'nin giriş bayrağı duruyor.
 - Çarpışma: büst, bayrak direği, çam fidanları ve ağaçlar engel (pede en az 4 m + yarıçap; test denetler).
 - `npm test` 87/87; headless'ta ped kamerası ve yapı inceleme görünümü kontrol edildi.

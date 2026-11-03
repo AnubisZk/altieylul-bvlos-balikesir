@@ -169,8 +169,10 @@
         -3.4,
         10.35
       ],
-      "flags": 2,
-      "note": "Atatürk köşesi girişin solunda, cepheye dayalı (Zafer Hoca'nın fotoğrafı): siyah daralan kaide, altın \"NE MUTLU TÜRKÜM DİYENE\", altın büst (temsili), iki yanında 6 m paslanmaz bayrak direği. flags: 0-2."
+      "poles": [
+        "east"
+      ],
+      "note": "Atatürk köşesi girişin solunda, cepheye dayalı (Zafer Hoca'nın fotoğrafı): siyah daralan kaide, altın \"NE MUTLU TÜRKÜM DİYENE\", altın büst (temsili); tek bayrak, büstün girişe yakın (doğu) yanında 6 m paslanmaz direkte. poles: [\"east\"] | [\"west\",\"east\"] | []."
     }
   },
   "model": {

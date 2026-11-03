@@ -80,7 +80,8 @@ test('BİLSEM binası: ölçülen konum ve ölçüde, kalkış pedi ön avluda, 
   for(const [x,z] of [[b.x-b.hu,b.z-b.hv],[b.x+b.hu,b.z+b.hv],[k.x,k.z],[home.x,home.z]])assert.ok(inZone(p.keepZones[0],x,z,5),'bahçe alanı');
   const inVol=(x,z,m)=>{const [la,lb]=b.local(x,z),xa=p.plan.s*la;return p.plan.vols.some(v=>xa>=v.x0-m&&xa<=v.x1+m&&lb>=v.z0-m&&lb<=v.z1+m)};
   for(const o of p.yardObstacles){assert.ok(Math.hypot(o.x-home.x,o.z-home.z)>o.r+4,o.name+' pede yakın');assert.ok(!inVol(o.x,o.z,o.r),o.name+' binanın içinde');assert.ok(!k.inside(o.x,o.z,0.5),o.name+' kamelyada')}
-  assert.equal(p.yardObstacles.filter(o=>o.name==='bayrak direği').length,2,'büstün iki yanında direk');
+  const poles=p.yardObstacles.filter(o=>o.name==='bayrak direği'),bust=p.yardObstacles.find(o=>o.name==='Atatürk büstü');
+  assert.equal(poles.length,1,'tek bayrak');assert.ok(b.local(poles[0].x,poles[0].z)[0]>b.local(bust.x,bust.z)[0],'bayrak büstün girişe yakın (doğu) yanında');
   assert.ok(p.yardObstacles.some(o=>o.name==='Atatürk büstü')&&p.yardObstacles.some(o=>o.name==='bayrak direği'));
 });
 

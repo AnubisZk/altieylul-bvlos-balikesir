@@ -5,7 +5,7 @@
 // BİLSEM (Zafer Hoca'nın fotoğrafı): binanın önünde açık renk taş döşeme, önde ve batıda çim, çimde çam fidanları ve
 // genç ağaçlar, döşemede banklar; kamelya döşemenin ön-batı köşesinde (Meshy, yeri değişmez). Atatürk köşesi girişin
 // solunda, cepheye dayalı (Zafer Hoca'nın fotoğrafı): siyah, yukarı daralan kaide, önünde altın "NE MUTLU TÜRKÜM
-// DİYENE", altın büst, iki yanında paslanmaz bayrak direği. Büst temsilidir (genel büst biçimi, portre değil).
+// DİYENE", altın büst, girişe yakın yanında paslanmaz bayrak direği. Büst temsilidir (genel büst biçimi, portre değil).
 // Fen Lisesi: binanın çevresi beton avlu.
 // Yerel çerçeve okulunki: a bina ekseni (doğu), b ön (güney); nesneler bina merkezinde yaw ile dönen bir gruptadır.
 import * as T from 'three';
@@ -35,8 +35,8 @@ export function yardObstacles(spec,world){
   return out;
 }
 const POLE_H=6;
-/** Büstün iki yanındaki direkler (flags: 0, 1 ya da 2). */
-const ataturkPoles=({at,flags=2})=>[[at[0]-1.05,at[1]-0.05],[at[0]+1.05,at[1]-0.05]].slice(0,flags);
+/** Büstün yanındaki bayrak direkleri: poles = ["east"] (girişe yakın yan, BİLSEM), ["west","east"] ya da []. */
+const ataturkPoles=({at,poles=['east']})=>poles.map(side=>[at[0]+(side==='west'?-1.05:1.05),at[1]-0.05]);
 
 /**
  * Okul bahçesi/avlusu. surface(x,z): arazi ağının yüksekliği; world(a,b) → {x,z}; yaw/center: bina grubu;
