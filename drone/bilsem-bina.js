@@ -131,9 +131,9 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
   curtain(EW,0.4,2.4,st.plinth+0.3,d.wallTop-0.7,1.0,1.2);
   bay(EE,mf+0.2,zf-0.2,1,1.3,{bands:false});
   smallWindows(EE,[(zb+mb)/2]);
-  // doğu (kısa) cephe
+  // doğu (kısa) cephe: penceresiz büyük duvar (Fen Lisesi hava fotoğrafı; Meshy'de de neredeyse boş), yalnız köşe plastırları
   const EX={n:'x',at:x1,dir:1};
-  for(const u of [mb+(mf-mb)*0.3,mb+(mf-mb)*0.72])bay(EX,u-1,u+1,1,1.5,{bands:false});
+  pilaster(EX,mf-0.3);pilaster(EX,mb+0.3);
 
   // çatı: saçak altı tablası (alnı beyaz), koyu kiremit kenarı, kırma çatı yüzleri, mahya
   plan.roofs.forEach((r,ri)=>{
