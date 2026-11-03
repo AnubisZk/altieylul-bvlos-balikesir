@@ -1,0 +1,10 @@
+node_modules/
+dist/
+imagery.local.json
+.env.local
+.env.*.local
+data/bal/report.txt
+.DS_Store
+*.blend1
+raw/
+*.tif

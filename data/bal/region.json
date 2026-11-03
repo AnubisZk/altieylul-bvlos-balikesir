@@ -1,0 +1,35 @@
+{
+  "name": "Balıkesir · Şehir merkezi",
+  "id": "bal",
+  "crs": "EPSG:32635",
+  "origin": {
+    "lon": 27.8793218,
+    "lat": 39.6456459,
+    "note": "Balıkesir Saat Kulesi (Google Haritalar yer kaydı; OSM verisi gelince doğrulanacak)"
+  },
+  "originUTM": [
+    575445.743,
+    4388797.983
+  ],
+  "bboxLonLat": [
+    27.8438,
+    39.6021,
+    27.9145,
+    39.6639
+  ],
+  "local": {
+    "minX": -3000,
+    "maxX": 3000,
+    "minZ": -2000,
+    "maxZ": 4800
+  },
+  "home": {
+    "lon": 27.878935,
+    "lat": 39.627485,
+    "note": "Altıeylül BİLSEM bahçesi, bina önündeki çim alan (Zafer Hoca'nın Google Haritalar işareti)"
+  },
+  "fallbackElevation": 140,
+  "fallbackNote": "GLO-30 yükseklik verisi gelene kadar düz zemin. Gerçek arazi değildir.",
+  "axes": "x = UTM easting - E0 (east +X); z = -(UTM northing - N0) (north -Z); y = meters above MSL",
+  "localNote": "Kalkış Saat Kulesi'nin ~2 km güneyinde; alan BİLSEM çevresindeki 2,5 km eğitim çemberini ve şehir merkezini kapsar (6 × 6,8 km)."
+}
