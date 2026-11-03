@@ -4,12 +4,36 @@
 dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturuma yapıştırılacak başlangıç mesajı:
 `CLAUDE-BALIKESIR-BASLANGIC-MESAJI.txt`.
 
-## Kısa durum (3 Kasım 2026, 18:00)
+## Kısa durum (3 Kasım 2026, 23:00)
 
 - Canlı: https://altieylul-bvlos-balikesir.vercel.app · depo `AnubisZk/altieylul-bvlos-balikesir` (main → Vercel otomatik).
-- Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası + kamelya
-  (Meshy, temsili), kalkış pedi BİLSEM ön avlusunda, Saat Kulesi çevresinde 6 noktalı tur, Balıkesir müziği.
+- Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası (MEB tip
+  projesi, yordamsal, temsili) + kamelya (Meshy), kalkış pedi BİLSEM ön avlusunda, Saat Kulesi çevresinde 6 noktalı tur,
+  Balıkesir müziği.
 - Açık işler: aşağıda "Sıradaki adımlar".
+
+## 3 Kasım 2026, 23:00 · BİLSEM binası tip projeye göre yeniden kuruldu
+
+- Zafer Hoca: BİLSEM ile arkasındaki **Altıeylül Fen Lisesi aynı tip proje**; Fen Lisesi'nin ön (iki) ve arka cephe
+  fotoğraflarını gönderdi. Kamelyaya dokunulmadı (BİLSEM kamelyası Fen Lisesi'ninkinden farklı yerde; Meshy modeli ve
+  `bilsem.json → kamelya.at` aynen duruyor).
+- `drone/bilsem-bina.js` (yeni): yordamsal bina. Dört kat + subasman; katlarda çerçeveli pencere bantları (2. ve 4. kat
+  pembe zemin + bordo çerçeve, renkler BİLSEM fotoğraflarından üretilen Meshy modelinden); ortada öne çıkan giriş,
+  saçak ve "ALTIEYLÜL BİLİM VE SANAT MERKEZİ" tabelası, basamaklar, bayrak direği (Türk bayrağı, hafif dalgalanır);
+  batı ucunda öne ve arkaya taşan merdiven bloğu (batı yüzünde dikey cam şerit, arkada küçük kare WC pencereleri);
+  arkada camlı merdiven kulesi; geniş saçaklı kiremit kırma çatı (ana çatı + uç blok çatısı birleşimi, mahyalar yalnız
+  görünen sırtlarda), bacalar, yağmur inişleri. Doku yalnız çatıda (tuvalde üretilen alaturka kiremit); dosya
+  indirmesi yok. Dış kutu yine ölçülen kutu (59.2 × 26 m, 21 m; mahya ≈ 20.2 m).
+- Meshy'deki gibi merdiven bloğu batıda kabul edildi (Fen Lisesi'nde doğuda; aynalı olabilir). Yanlışsa
+  `bilsem.json → style.endBlock: "east"`. Bant renkleri ve katları `style.band`, `bandFrame`, `bandFloors`.
+  `style.model: "meshy"` eski Meshy binasına döner (GLB'deki `Bina` düğümü duruyor; kamelya için GLB zaten yükleniyor).
+- Çarpışma: bina kutusu yerine plan yüksekliği (duvar + kırma çatı + kule); bayrak direği ayrı engel. Koruma alanları
+  (Google ağı kırpma) değişmedi: ped, bina kutusu, kamelya.
+- `npm test` 86/86 (yeni test: hacimler ölçülen kutuda, çatı ≤ 21 m, ped/kamelya bina dışında, direk pede > 15 m).
+  Headless'ta gündüz ve akşam görünümü, yapı inceleme ve ped kamerası kontrol edildi; Google katmanı burada görünmez,
+  Karma görünümde zeminle uyum canlıda bakılmalı.
+- Bahçe yapılmadı: BİLSEM bahçesinin gerçek düzeni (çim mi, Fen Lisesi'ndeki gibi beton avlu mu, çam fidanları nerede)
+  belli değil; Karma görünümde zemin zaten Google görüntüsü. Zafer Hoca'dan bilgi/fotoğraf bekleniyor.
 
 ## 3 Kasım 2026, 18:00 · BİLSEM binası, kalkış pedi, müzik
 
@@ -140,6 +164,8 @@ ve kalkışa 250 m içindeki OSM adlarını yazar. OSM'deki Saat Kulesi konumu G
 
 ## Sıradaki adımlar
 
+0. Zafer Hoca yeni BİLSEM binasına baksın: bant renkleri, merdiven bloğunun hangi uçta olduğu (batı/doğu), giriş ve
+   bayrak direği. Bahçe için BİLSEM'in ön bahçesinden fotoğraf (çim/avlu, çam fidanları, yollar).
 1. Zafer Hoca canlı sitede BİLSEM'i kontrol etsin: binanın yeri/yönü, kamelya ve ped konumu, Karma görünümde Google
    zemini ile uyum. Kaydırma gerekirse yalnız `data/bal/bilsem.json` (building.center, kamelya.at) ve
    `region.json home` değişir; testler (`tests/balikesir.test.mjs`) tutarlılığı denetler.

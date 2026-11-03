@@ -163,7 +163,7 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   const layers=[];
   if(bilsemPlace){
     onProgress(.8,'BİLSEM binası');
-    try{const layer=await createBilsemLayer({loader,data:bilsemData,ground:terrainHeight});layers.push(layer);object.add(layer.object);sources.bilsem='Meshy (temsili)'}
+    try{const layer=await createBilsemLayer({loader,data:bilsemData,ground:terrainHeight,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});layers.push(layer);object.add(layer.object);sources.bilsem=layer.stats.source}
     catch(e){console.warn('[bilsem] model yüklenemedi',e.message);sources.bilsem='yüklenemedi'}
   }
 

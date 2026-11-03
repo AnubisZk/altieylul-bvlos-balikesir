@@ -1,7 +1,20 @@
 {
   "name": "Altıeylül BİLSEM",
-  "note": "Temsili model: Meshy AI (Zafer Hoca'nın fotoğraflarından). Konum ve ölçü Google uydu karosundan (2D Map Tiles, 3 Kasım 2026) ölçüldü; çatı görüntüsü kuzeye bakan kamera eğikliği için ~9 m kuzeye kaydırıldı. Ölçüler yaklaşıktır.",
+  "note": "Bina temsili tip proje modeli (Fen Lisesi fotoğrafları, Zafer Hoca); kamelya Meshy AI. Konum ve ölçü Google uydu karosundan (2D Map Tiles, 3 Kasım 2026) ölçüldü; çatı görüntüsü kuzeye bakan kamera eğikliği için ~9 m kuzeye kaydırıldı. Ölçüler yaklaşıktır.",
   "glb": "models/bilsem-bina.glb",
+  "style": {
+    "note": "Bina: MEB tip projesi (Altıeylül Fen Lisesi ile aynı proje), drone/bilsem-bina.js. model: \"tip-proje\" | \"meshy\" (eski Meshy binası). Renkler Meshy modelinden; endBlock: merdiven bloğunun ucu (west | east). Kamelya her iki durumda Meshy.",
+    "model": "tip-proje",
+    "endBlock": "west",
+    "bandFloors": [
+      1,
+      3
+    ],
+    "band": "#efc3b5",
+    "bandFrame": "#94353c",
+    "sign": "ALTIEYLÜL BİLİM VE SANAT MERKEZİ",
+    "flag": true
+  },
   "building": {
     "center": [
       27.8788336,

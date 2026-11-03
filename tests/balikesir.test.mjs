@@ -76,3 +76,19 @@ test('BİLSEM binası: ölçülen konum ve ölçüde, kalkış pedi ön avluda, 
   assert.ok(!p.boxes.some(x=>x.inside(home.x+12,home.z,1)));
   const zones=keepZones({home,extra:p.boxes.map(x=>x.keep(1.5))});assert.ok(zones.length<=4,'en fazla 4 koruma alanı (keep-zone.js MAX_KEEP)');
 });
+
+test('BİLSEM tip proje binası: hacimler ölçülen kutuda, çatı ölçülen yükseklikte, ped/kamelya/bayrak direği bina dışında',()=>{
+  setGeoRegion(region,u);
+  const data=JSON.parse(fs.readFileSync('data/bal/bilsem.json','utf8'));
+  const p=bilsemPlacement(data,()=>160),b=p.building,plan=p.plan;
+  assert.equal(plan.st.model,'tip-proje');
+  for(const v of plan.vols)assert.ok(v.x0>=-b.hu-1e-6&&v.x1<=b.hu+1e-6&&v.z0>=-b.hv-1e-6&&v.z1<=b.hv+1e-6,v.name+' kutu dışında');
+  assert.ok(plan.top<=data.building.height+0.01,`çatı ${plan.top.toFixed(1)} m`);
+  assert.ok(plan.heightAt(0,0)>plan.dims.wallTop,'ortada mahya');
+  assert.ok(plan.vols[0].x1<0,'merdiven bloğu batı ucunda (Meshy)');
+  for(const q of [home,p.kamelya]){const [a,c]=b.local(q.x,q.z);assert.equal(plan.heightAt(a,c),-Infinity)}
+  assert.ok(Math.hypot(p.pole.x-home.x,p.pole.z-home.z)>15,'bayrak direği pede uzak');
+  // çatı birleşimi: uç bloğun öne taşan kısmında uç blok çatısı, ana bloğun ortasında ana çatı
+  assert.ok(plan.heightAt(plan.dims.x0+4,b.hv-0.5)>plan.dims.wallTop);
+  assert.ok(Math.abs(plan.heightAt(20,0)-(plan.dims.wallTop+plan.dims.k*(b.hv-3+plan.dims.o-0.25)))<0.6);
+});
