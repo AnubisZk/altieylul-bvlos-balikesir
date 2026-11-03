@@ -3,6 +3,14 @@
 Çalışma başka bir hesapta veya oturumda sürdürülürken ilk okunacak not budur. Sonra `CLAUDE-BALIKESIR-DEVIR.md`
 dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada).
 
+## 3 Kasım 2026, 17:35 · Google ve ArcGIS anahtarları
+
+- Vercel Production: `GOOGLE_MAPS_TILES_KEY` ve `ARCGIS_API_KEY` tanımlı (değerler kaynakta yok). Yeniden yayından sonra
+  canlı sitede: "Şehir: Karma" düğmesi görünüyor, Google katmanı yüklenip BİLSEM bahçesinde kalibre oldu (geoit
+  41.1 m), ArcGIS hava görüntüsü hazır (64 karo, zoom 17). Zafer Hoca'nın tarayıcısında doğrulandı.
+- Google anahtarının izinli adresleri: Ankara ve Balıkesir vercel.app adresleri (geniş `*.vercel.app` kalıbı yok).
+- ArcGIS kuruluşunun yenileme tarihi 2 Aralık 2026; anahtarın son kullanma tarihi takip edilmeli.
+
 ## 3 Kasım 2026, 17:10 · Gerçek arazi ve OSM verisi
 
 - Zafer Hoca GLO-30 paftasını (`Copernicus_DSM_COG_10_N39_00_E027_00_DEM.tif`, 45 MB) ve overpass-turbo
