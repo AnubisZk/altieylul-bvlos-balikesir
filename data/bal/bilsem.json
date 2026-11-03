@@ -1,0 +1,49 @@
+{
+  "name": "Altıeylül BİLSEM",
+  "note": "Temsili model: Meshy AI (Zafer Hoca'nın fotoğraflarından). Konum ve ölçü Google uydu karosundan (2D Map Tiles, 3 Kasım 2026) ölçüldü; çatı görüntüsü kuzeye bakan kamera eğikliği için ~9 m kuzeye kaydırıldı. Ölçüler yaklaşıktır.",
+  "glb": "models/bilsem-bina.glb",
+  "building": {
+    "center": [
+      27.8788336,
+      39.6276477
+    ],
+    "axisWest": [
+      27.8784882,
+      39.6276814
+    ],
+    "axisEast": [
+      27.8791789,
+      39.6276941
+    ],
+    "width": 59.2,
+    "height": 21,
+    "sink": 0.4
+  },
+  "kamelya": {
+    "at": [
+      27.878567,
+      39.627372
+    ],
+    "note": "Görüntüde kamelya cepheden ~15 m önde, binanın batı ucunda (Meshy'deki yerinden ileride)."
+  },
+  "keepMargin": 1.5,
+  "model": {
+    "source": "Meshy AI (Zafer Hoca), sadeleştirilmiş",
+    "bina": {
+      "x0": -0.788,
+      "z0": -0.6927,
+      "x1": 0.9521,
+      "z1": 0.0719,
+      "y0": -0.3267,
+      "y1": 0.3594
+    },
+    "kamelya": {
+      "x0": -0.6169,
+      "z0": 0.0432,
+      "x1": -0.3558,
+      "z1": 0.2297,
+      "y0": -0.3455,
+      "y1": -0.1914
+    }
+  }
+}

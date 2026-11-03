@@ -9,14 +9,15 @@ bool ankInKeep(vec2 p){for(int i=0;i<${MAX_KEEP};i++){if(float(i)>=uKeepN)break;
   if(abs(dot(d,u))<=uKeepH[i].x&&abs(dot(d,vec2(-u.y,u.x)))<=uKeepH[i].y)return true;}return false;}`;
 
 /** Yönlü dikdörtgenler: {c:[x,z], u:[ux,uz] birim eksen, h:[yarı uzunluk u, yarı en]}. */
-export function keepZones({monument,road,home=null}){
+export function keepZones({monument,road,home=null,extra=[]}){
   const out=[];
   const rectOf=(pts,u)=>{const v=[-u[1],u[0]];let a0=1e9,a1=-1e9,b0=1e9,b1=-1e9;
     for(const [x,z] of pts){const a=x*u[0]+z*u[1],b=x*v[0]+z*v[1];a0=Math.min(a0,a);a1=Math.max(a1,a);b0=Math.min(b0,b);b1=Math.max(b1,b)}
     const ca=(a0+a1)/2,cb=(b0+b1)/2;return {c:[ca*u[0]+cb*v[0],ca*u[1]+cb*v[1]],u,h:[(a1-a0)/2,(b1-b0)/2]}};
   if(monument?.footprint?.length>=4){const [p0,p1]=monument.footprint,l=Math.hypot(p1[0]-p0[0],p1[1]-p0[1]);out.push(rectOf(monument.footprint,[(p1[0]-p0[0])/l,(p1[1]-p0[1])/l]))}
   if(road?.footprint?.length>=3)out.push(rectOf(road.footprint,road.dir));
-  if(home)out.push({c:[home.x,home.z],u:[1,0],h:[18,18]});   // kalkış pisti: bizim zemin (pist modeli ve fizik DEM'e göre)
+  if(home)out.push({c:[home.x,home.z],u:[1,0],h:[8,8]});   // kalkış pisti: bizim zemin (pist modeli ve fizik DEM'e göre)
+  out.push(...extra);   // ör. BİLSEM binası ve kamelyası (bilsem.js)
   return out;
 }
 

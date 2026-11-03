@@ -57,3 +57,22 @@ test('Ankara’ya özgü dosyalar pakette yok, açılış haritası Saat Kulesi 
   assert.equal(open.monument.name,'Saat Kulesi');assert.equal(open.home.name,'Altıeylül BİLSEM');
   assert.ok(open.streets.length<=5,'street-map.js en fazla beş cadde etiketler');
 });
+
+import {setGeoRegion} from '../src/geo.js';
+import {bilsemPlacement} from '../drone/bilsem.js';
+import {keepZones} from '../drone/keep-zone.js';
+test('BİLSEM binası: ölçülen konum ve ölçüde, kalkış pedi ön avluda, kamelya binanın önünde ve batısında',()=>{
+  setGeoRegion(region,u);
+  const data=JSON.parse(fs.readFileSync('data/bal/bilsem.json','utf8'));
+  assert.ok(fs.existsSync(data.glb),'model dosyası yok: '+data.glb);
+  const p=bilsemPlacement(data,()=>160),b=p.building,k=p.kamelya;
+  assert.ok(Math.abs(b.hu*2-data.building.width)<0.01,'genişlik');assert.ok(b.top-b.bottom===data.building.height);
+  assert.ok(Math.abs(Math.atan2(b.u[1],b.u[0]))<0.05,'bina doğu-batı ekseninde (±3°)');
+  assert.ok(!b.inside(home.x,home.z,3)&&!k.inside(home.x,home.z,3),'ped bina/kamelya dışında, 3 m pay');
+  const front=(home.z-b.z)*1;assert.ok(front>b.hv+8&&front<b.hv+30,`ped cepheden ${(front-b.hv).toFixed(1)} m önde`);
+  assert.ok(k.z>b.z+b.hv+5&&k.x<b.x-b.hu/3,'kamelya binanın önünde ve batı tarafında');
+  assert.ok(Math.hypot(k.x-home.x,k.z-home.z)>8,'kamelya pede çok yakın değil');
+  // Google kalibrasyon noktası (ped +12 m doğu) bina ve kamelya dışında
+  assert.ok(!p.boxes.some(x=>x.inside(home.x+12,home.z,1)));
+  const zones=keepZones({home,extra:p.boxes.map(x=>x.keep(1.5))});assert.ok(zones.length<=4,'en fazla 4 koruma alanı (keep-zone.js MAX_KEEP)');
+});

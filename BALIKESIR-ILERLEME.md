@@ -1,7 +1,34 @@
 # Balıkesir / Altıeylül BİLSEM — ilerleme ve devir notu
 
 Çalışma başka bir hesapta veya oturumda sürdürülürken ilk okunacak not budur. Sonra `CLAUDE-BALIKESIR-DEVIR.md`
-dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada).
+dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturuma yapıştırılacak başlangıç mesajı:
+`CLAUDE-BALIKESIR-BASLANGIC-MESAJI.txt`.
+
+## Kısa durum (3 Kasım 2026, 18:00)
+
+- Canlı: https://altieylul-bvlos-balikesir.vercel.app · depo `AnubisZk/altieylul-bvlos-balikesir` (main → Vercel otomatik).
+- Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası + kamelya
+  (Meshy, temsili), kalkış pedi BİLSEM ön avlusunda, Saat Kulesi çevresinde 6 noktalı tur, Balıkesir müziği.
+- Açık işler: aşağıda "Sıradaki adımlar".
+
+## 3 Kasım 2026, 18:00 · BİLSEM binası, kalkış pedi, müzik
+
+- Zafer Hoca Meshy modeli gönderdi (`Meshy_AI_School_Building_in_Gr_1103144257_texture.glb`, 88 MB, 1.06 M üçgen,
+  8K doku; repoda yok, `raw/bilsem-meshy.glb`). `tools/balikesir/prepare-bilsem.mjs` → `models/bilsem-bina.glb`
+  (4.3 MB; düğümler `Bina` ~47.5 bin, `Kamelya` ~6 bin üçgen; Meshy'nin iki çamı atıldı) ve
+  `data/bal/bilsem.json → model` kutuları.
+- Konum/ölçü: Google 2D uydu karosu (Map Tiles API, aynı anahtar) Leaflet'te koordinatlı açılıp ölçüldü. Çatı
+  59.2 m (D-B) × ~27 m; görüntü kuzeyden eğik (kuzey cephe görünüyor) olduğu için çatı ~9 m kuzeye kaydırılarak taban
+  bulundu. Eksen ~1.4° (doğu ucu kuzeyde). Yükseklik 21 m kabul edildi (Meshy oranı 24 m veriyordu; dikeyde ölçekli).
+  Zafer Hoca'nın ilk işareti (39.627485, 27.878935) ön cephe girişine düşüyordu.
+- Kamelya ("oturma yeri") Meshy'de binaya yapışıktı; Zafer Hoca "daha beride" dedi. Görüntüde cephenin ~15 m önünde,
+  batı ucunda: ayrı düğüm olarak oraya kondu (`bilsem.json → kamelya.at`).
+- Kalkış pedi (`region.json home`) ön avluya taşındı: 39.6273509, 27.878743 (cepheden ~19 m, kamelyanın ~15 m
+  doğusu). `ANCHOR_FROM_HOME` = [30, −2031].
+- `drone/bilsem.js`: yönlü kutu çarpışma (bina ve kamelya; çarpma = kaza), Google ağı bina/kamelya kutusunda atılır
+  (`keep-zone.js extra`), ped koruma alanı 8 m'ye indi. Tarihi yapı menüsündeki "Altıeylül BİLSEM" binaya bakar.
+- Müzik: `music/over-the-aegean-horizon.mp3` (Zafer Hoca'nın kaydı); geçici `seven-hills-at-dawn.mp3` kaldırıldı.
+- `npm test` 85/85. Headless'ta bina, kamelya ve ped görüldü.
 
 ## 3 Kasım 2026, 17:35 · Google ve ArcGIS anahtarları
 
@@ -47,7 +74,7 @@ başladı; Ankara deposuna ve İstanbul sitelerine yazılmadı.
 - Anıtkabir, Aslanlı Yol, heykeller, İnönü Lahdi, Türk bayrağı, ilgili Blender/hazırlık betikleri ve Ankara müzikleri
   çıkarıldı. Koruma alanında yalnız kalkış pisti kaldı. Koruma kalkanı kodu (`main.js guardedTick`) ileride
   korunacak bir model (ör. Saat Kulesi) için duruyor.
-- Müzik: Balıkesir parçası gelene kadar `seven-hills-at-dawn.mp3` (geçici). Konuma göre müzik bölgesi yok;
+- Müzik: (18:00'de Over the Aegean Horizon geldi.) Konuma göre müzik bölgesi yok;
   `music-zone.js` bölge verilirse (`data/bal/music-zone.json`: `ring`, `inside`, `outside`) yine çalışır.
 - Kılavuz: Ankara'ya özgü dört paragraf (0, 2, 3, 19) Balıkesir'e göre yeniden yazıldı. Bunların ses kaydı eski metni
   okuduğu için `drone/guide-audio.json` ile sessiz geçiliyor; yeni ses üretilince listeden çıkarılır.
@@ -99,7 +126,7 @@ başladı; Ankara deposuna ve İstanbul sitelerine yazılmadı.
 4. Balıkesir müziği ve (istenirse) yeni sesli kılavuz kayıtları.
 5. Google Earth'te Balıkesir merkezine eğik bakış: gerçek 3B bina var mı? (Yoksa Karma görünüm zaten varsayılan.)
 
-## Veri gelince
+## Veri yenilenirse
 
 ```sh
 node tools/balikesir/prepare-data.mjs --dem raw/Copernicus_DSM_COG_10_N39_00_E027_00_DEM.tif --osm raw/balikesir-osm.json
@@ -113,12 +140,24 @@ ve kalkışa 250 m içindeki OSM adlarını yazar. OSM'deki Saat Kulesi konumu G
 
 ## Sıradaki adımlar
 
-1. Arazi + OSM verisini işle; tarihi yapı menüsünün (Saat Kulesi, Zağanos Paşa Camii, Kuva-yi Milliye Müzesi,
-   Atatürk Parkı, BİLSEM) OSM konumlarını doğrula; gece arama noktasının yeşil alana düştüğünü kontrol et.
-2. ~~Vercel projesi~~ (açıldı). `main` push → otomatik yayının çalıştığını ilk veri commit'inde doğrula
-3. İsteğe bağlı: fotoğraftan temsili BİLSEM binası (beyaz cephe, kiremit renkli pencere bantları, kamelya) ve
-   Saat Kulesi modeli; eklenirse `keep-zone.js` dikdörtgeni ve inceleme kamerası ayarı.
-4. Kılavuz seslerinin (0, 2, 3, 19) yeniden üretimi; Balıkesir müziği.
+1. Zafer Hoca canlı sitede BİLSEM'i kontrol etsin: binanın yeri/yönü, kamelya ve ped konumu, Karma görünümde Google
+   zemini ile uyum. Kaydırma gerekirse yalnız `data/bal/bilsem.json` (building.center, kamelya.at) ve
+   `region.json home` değişir; testler (`tests/balikesir.test.mjs`) tutarlılığı denetler.
+2. Okul bilgisayarında açılış süresi ve FPS (22 135 bina). Yavaşsa küçük binalar / eğitim çemberi dışı binalar elenir
+   (`prepare-data.mjs` veya `city-world.js` içinde süzgeç).
+3. Saat Kulesi OSM'de adıyla yok: konumu yerinde/uydu ile doğrula; istenirse Saat Kulesi modeli (Meshy) +
+   `keep-zone` dikdörtgeni (en çok 4 koruma alanı: ped, bina, kamelya + 1).
+4. Kılavuz seslerinin (paragraf 0, 2, 3, 19) Balıkesir metniyle yeniden üretimi (`drone/guide-audio.json` listesi).
+5. Bina yükseklikleri çoğunlukla tahmini (10 m); istenirse mahalleye göre kat sayısı varsayımı.
+
+## Ham dosyalar (repoda yok, Zafer Hoca'da)
+
+- `Copernicus_DSM_COG_10_N39_00_E027_00_DEM.tif` → `raw/`, `export.geojson` (overpass-turbo) → `raw/balikesir-osm.geojson`
+- `Meshy_AI_School_Building_in_Gr_1103144257_texture.glb` → `raw/bilsem-meshy.glb`
+- Yeniden üretim: `node tools/balikesir/prepare-data.mjs --dem raw/<tif> --osm raw/balikesir-osm.geojson`,
+  `node tools/balikesir/prepare-streets.mjs`, `node tools/balikesir/prepare-bilsem.mjs --in raw/bilsem-meshy.glb`.
+  İşlenmiş çıktılar (`data/bal/*.json`, `models/bilsem-bina.glb`) repoda olduğundan ham dosya yalnız yeniden üretim için
+  gerekir.
 
 ## Çalıştırma
 

@@ -3,7 +3,7 @@
 // circle the centre at ~380 m; the first and last points are on the BİLSEM side, so the tour starts and ends heading
 // north/south along the city. Recompute ANCHOR_FROM_HOME whenever origin or home in region.json changes
 // (tests/balikesir.test.mjs fails when it is stale). Every point must stay inside the 2.5 km lesson radius (sim.js).
-export const ANCHOR_FROM_HOME = [14,-2016];
+export const ANCHOR_FROM_HOME = [30,-2031];
 const RING = [[0,380],[-360,180],[-360,-170],[0,-360],[360,-170],[360,180]];
 export const OBSERVATION_POINTS = RING.map(([x,z])=>[ANCHOR_FROM_HOME[0]+x,ANCHOR_FROM_HOME[1]+z]);
 export const createDefaultRoute = home => OBSERVATION_POINTS.map(([x,z])=>({x:home.x+x,z:home.z+z}));

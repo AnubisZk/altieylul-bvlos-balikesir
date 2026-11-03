@@ -1,0 +1,6 @@
+Altıeylül BİLSEM BVLOS drone simülatörünün Balıkesir sürümünde çalışmaya devam edeceğiz.
+Depo: AnubisZk/altieylul-bvlos-balikesir (main). Canlı site: https://altieylul-bvlos-balikesir.vercel.app (Vercel projesi altieylul-bvlos-balikesir; main'e push otomatik yayınlanır).
+Önce depodaki BALIKESIR-ILERLEME.md dosyasını, sonra CLAUDE-BALIKESIR-DEVIR.md dosyasını oku; kurallar ve açık işler orada.
+Kurallar: Ankara ve İstanbul sitelerine ve depolarına yazma. Anahtarları koda koyma (Google ve ArcGIS anahtarları yalnız Vercel ortam değişkeninde). Arayüzü, sağ üst haritayı, drone modelini ve kumanda kontrollerini koru. Dosyaları yerinde düzenle, gereksiz kopya/klasör açma. İlerlemeyi BALIKESIR-ILERLEME.md'ye yaz. Push öncesi git pull --rebase.
+Ham dosyalar (GLO-30 .tif, overpass GeoJSON, Meshy BİLSEM .glb) repoda yok; yeniden üretim gerekirse bende, isteyince yüklerim.
+Bu oturumda yapılacak iş: [buraya yaz]

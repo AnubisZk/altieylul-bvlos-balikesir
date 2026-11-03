@@ -24,9 +24,9 @@
     "maxZ": 4800
   },
   "home": {
-    "lon": 27.878935,
-    "lat": 39.627485,
-    "note": "Altıeylül BİLSEM bahçesi, bina önündeki çim alan (Zafer Hoca'nın Google Haritalar işareti)"
+    "lon": 27.878743,
+    "lat": 39.6273509,
+    "note": "Altıeylül BİLSEM ön avlusu, binanın ~19 m güneyi, kamelyanın ~15 m doğusu (Google uydu karosundan; Zafer Hoca'nın işareti 39.627485, 27.878935 ön cephe girişine düşüyordu)"
   },
   "fallbackElevation": 160,
   "fallbackNote": "GLO-30 yükseklik verisi gelene kadar düz zemin. Gerçek arazi değildir.",

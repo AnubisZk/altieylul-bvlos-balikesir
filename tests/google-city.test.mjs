@@ -23,5 +23,5 @@ test('Google 3D Tiles çerçevesi: ECEF noktaları UTM 35N yerel koordinatına <
 test('koruma alanı: Balıkesir’de yalnız kalkış pisti; ped içeride, Saat Kulesi dışarıda',()=>{
   const home={x:-13.5,z:2016},zones=keepZones({home});assert.equal(zones.length,1);
   const inK=(x,z)=>zones.some(r=>{const dx=x-r.c[0],dz=z-r.c[1];return Math.abs(dx*r.u[0]+dz*r.u[1])<=r.h[0]&&Math.abs(-dx*r.u[1]+dz*r.u[0])<=r.h[1]});
-  assert.ok(inK(home.x,home.z));assert.ok(inK(home.x+12,home.z));assert.ok(!inK(0,0));assert.ok(!inK(home.x+40,home.z));
+  assert.ok(inK(home.x,home.z));assert.ok(inK(home.x+6,home.z));assert.ok(!inK(0,0));assert.ok(!inK(home.x+12,home.z));
 });
