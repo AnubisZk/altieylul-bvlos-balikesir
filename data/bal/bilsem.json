@@ -58,5 +58,26 @@
       "y0": -0.3455,
       "y1": -0.1914
     }
+  },
+  "fenLisesi": {
+    "name": "Altıeylül Fen Lisesi",
+    "note": "BİLSEM ile aynı tip proje, BİLSEM'in arkasında (~74 m kuzey, ~14 m doğu). Konum Zafer Hoca'nın Google Haritalar uydu ekran görüntüsünden: Fen ve BİLSEM çatıları ile 'Altıeylül Fen Lisesi Müdürlüğü' iğnesi (39.628403, 27.879561; binanın kuzeydoğusunda) karşılaştırıldı; BİLSEM ile aynı eğiklik düzeltmesi uygulandı. Yön ve ölçü BİLSEM ile aynı. Merdiven bloğu doğuda, penceresiz yan duvar batıda boş arsaya bakar (BİLSEM'in tersi). Renkler Fen Lisesi ön cephe fotoğrafından (renkli bantlar). Yaklaşık ±5 m.",
+    "center": [
+      27.878992,
+      39.628317
+    ],
+    "sink": 0.4,
+    "style": {
+      "endBlock": "east",
+      "band": "#f3f2ee",
+      "bandFrames": {
+        "1": "#2f6cb3",
+        "3": "#c8302c"
+      },
+      "entranceFrame": "#3d9a4b",
+      "endFrame": "#e07b2c",
+      "sign": "ALTIEYLÜL FEN LİSESİ",
+      "flag": true
+    }
   }
 }

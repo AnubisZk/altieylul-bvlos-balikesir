@@ -12,7 +12,8 @@ import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 export const STYLE_DEFAULTS={
   model:'tip-proje',endBlock:'west',floors:4,floorHeight:3.7,plinth:0.9,bandFloors:[1,3],
   wall:'#eeece6',trim:'#f7f6f2',plinthColor:'#9b978f',band:'#efc3b5',bandFrame:'#94353c',frame:'#3b3f45',
-  glass:'#41596e',curtain:'#3a74a8',roof:'#b15a45',sign:'ALTIEYLÜL BİLİM VE SANAT MERKEZİ',flag:true,
+  bandFrames:null,entranceFrame:null,endFrame:null,   // isteğe bağlı: katlara ({"1":"#..."}), girişe, uç bloğa ayrı çerçeve rengi
+  glass:'#41596e',curtain:'#3a74a8',roof:'#c47a55',sign:'ALTIEYLÜL BİLİM VE SANAT MERKEZİ',flag:true,
 };
 const OVERHANG=1.0,END_WIDTH=8;
 
@@ -66,16 +67,16 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
     if(h>1.2)onFace('frame',f,u-w/2,u+w/2,y+h*0.74-0.035,y+h*0.74+0.035,0.07,0.1);   // vasistas kaydı
     onFace('sill',f,u-w/2-0.08,u+w/2+0.08,y-0.07,y,-0.02,0.16);
   }
-  function band(f,u0,u1,y0,y1){const t=0.22,dd=0.12;
+  function band(f,u0,u1,y0,y1,color){const t=0.22,dd=0.12,k=color?'bf'+color:'bandFrame';
     onFace('bandFill',f,u0,u1,y0,y1,0,0.035);
-    onFace('bandFrame',f,u0-t,u1+t,y1,y1+t,0,dd);onFace('bandFrame',f,u0-t,u1+t,y0-t,y0,0,dd);
-    onFace('bandFrame',f,u0-t,u0,y0,y1,0,dd);onFace('bandFrame',f,u1,u1+t,y0,y1,0,dd);
+    onFace(k,f,u0-t,u1+t,y1,y1+t,0,dd);onFace(k,f,u0-t,u1+t,y0-t,y0,0,dd);
+    onFace(k,f,u0-t,u0,y0,y1,0,dd);onFace(k,f,u1,u1+t,y0,y1,0,dd);
   }
   /** Bölmede ortalanmış n pencere; bant katlarında çerçeveli şerit. */
-  function bay(f,u0,u1,n,w,{floors=[0,1,2,3],bands=true,h=1.7,sill=0.9,gap=0.75,mull=2}={}){
+  function bay(f,u0,u1,n,w,{floors=[0,1,2,3],bands=true,h=1.7,sill=0.9,gap=0.75,mull=2,frameColor=null}={}){
     const gw=n*w+(n-1)*gap,g0=(u0+u1)/2-gw/2;
     for(const i of floors){if(i>=st.floors)continue;const y=floorY(i)+sill;
-      if(bands&&banded(i))band(f,g0-0.45,g0+gw+0.45,y-0.42,y+h+0.42);
+      if(bands&&banded(i))band(f,g0-0.45,g0+gw+0.45,y-0.42,y+h+0.42,frameColor||st.bandFrames?.[i]||null);
       for(let j=0;j<n;j++)windowAt(f,g0+w/2+j*(w+gap),y,w,h,{mull});
     }
   }
@@ -100,7 +101,7 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
   for(const [u0,u1] of [[xe,lm],[lm,c-5],[c+5,rm],[rm,x1]])bay(F,u0+0.3,u1-0.3,3,2.1,{gap:0.6,h:1.8});
   for(const u of [lm,rm])pilaster(F,u);pilaster(F,x1-0.3);
   const G={n:'z',at:mf+0.9,dir:1};
-  bay(G,c-5,c+5,4,1.15,{floors:[1,2,3],gap:1.0});
+  bay(G,c-5,c+5,4,1.15,{floors:[1,2,3],gap:1.0,frameColor:st.entranceFrame});
   windowAt(G,c,st.plinth+0.05,3.6,2.85,{mull:4});                       // giriş kapısı
   for(const u of [c-3.7,c+3.7])windowAt(G,u,floorY(0)+0.9,1.0,1.7,{mull:1});
   // giriş saçağı, tabela, sütunlar, sahanlık ve basamaklar
@@ -126,7 +127,7 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
 
   // uç blok: ön yüzde bantlı pencereler, dış yan yüzde dikey cam şerit, arkada WC pencereleri
   const EF={n:'z',at:zf,dir:1},EB={n:'z',at:zb,dir:-1},EW={n:'x',at:x0,dir:-1},EE={n:'x',at:xe,dir:1};
-  bay(EF,x0+0.6,xe-0.6,2,1.7);pilaster(EF,x0+0.3);pilaster(EF,xe-0.3);
+  bay(EF,x0+0.6,xe-0.6,2,1.7,{frameColor:st.endFrame});pilaster(EF,x0+0.3);pilaster(EF,xe-0.3);
   smallWindows(EB,[x0+2.3,xe-2.3]);
   curtain(EW,0.4,2.4,st.plinth+0.3,d.wallTop-0.7,1.0,1.2);
   bay(EE,mf+0.2,zf-0.2,1,1.3,{bands:false});
@@ -170,8 +171,8 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
     bandFill:mat('band',{color:st.band,roughness:0.9}),bandFrame:mat('band-frame',{color:st.bandFrame,roughness:0.8}),
     frame:mat('frame',{color:st.frame,roughness:0.55,metalness:0.25}),sill:mat('sill',{color:'#dedad1',roughness:0.85}),
     glass:mat('glass',{color:st.glass,roughness:0.1,metalness:0.3}),curtain:mat('curtain',{color:st.curtain,roughness:0.08,metalness:0.35}),
-    slab:mat('fascia',{color:'#f5f4f0',roughness:0.85}),edge:mat('roof-edge',{color:'#7b2f27',roughness:0.75}),
-    roof:mat('roof',{map:tex,roughness:0.8}),cap:mat('ridge',{color:'#8c3b30',roughness:0.78}),
+    slab:mat('fascia',{color:'#f5f4f0',roughness:0.85}),edge:mat('roof-edge',{color:'#8a3b25',roughness:0.75}),
+    roof:mat('roof',{map:tex,roughness:0.8}),cap:mat('ridge',{color:'#a54c30',roughness:0.78}),
     canopy:mat('canopy',{color:'#f2f1ed',roughness:0.8}),signBand:mat('sign-band',{color:'#1e2b46',roughness:0.6}),
     metal:mat('metal',{color:'#a3a9ae',roughness:0.35,metalness:0.7}),pipe:mat('pipe',{color:'#bcbcb6',roughness:0.6,metalness:0.2}),
   };
@@ -179,7 +180,8 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
   for(const [key,list] of Object.entries(P)){
     const g=mergeGeometries(list,false);list.forEach(x=>x.dispose());
     if(plan.s<0)mirrorX(g);
-    const mesh=new T.Mesh(g,mats[key]);mesh.name='bilsem-'+key;mesh.castShadow=mesh.receiveShadow=true;object.add(mesh);
+    const m=mats[key]||(key.startsWith('bf')?mat('band-frame',{color:key.slice(2),roughness:0.8}):mats.wall);
+    const mesh=new T.Mesh(g,m);mesh.name='bilsem-'+key;mesh.castShadow=mesh.receiveShadow=true;object.add(mesh);
   }
   // tabela yazısı (aynalanmaz; konumu aynalanır)
   const sign=new T.Mesh(new T.PlaneGeometry(7.4,0.5),mat('sign',{map:signTexture(st.sign,anisotropy),roughness:0.6}));

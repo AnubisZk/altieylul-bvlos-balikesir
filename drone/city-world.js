@@ -146,7 +146,7 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   geo.computeVertexNormals();
   // gerçekçi şehir açıkken (google-city.js) arazi yalnız koruma alanında (kalkış pisti) görünür
   const homeLocal=region.home?lonLatToLocal(region.home.lon,region.home.lat):null;
-  // BİLSEM binası ve kamelyası: Google ağı orada atılır, temsili model görünür (bilsem.js)
+  // BİLSEM binası, kamelyası ve Fen Lisesi: Google ağı orada atılır, temsili model görünür (bilsem.js; en çok 4 koruma alanı)
   const bilsemPlace=bilsemData?.model&&loader?bilsemPlacement(bilsemData,terrainHeight):null;
   const keep=keepZones({home:homeLocal,extra:(bilsemPlace?.boxes||[]).map(b=>b.keep(bilsemData.keepMargin||1.5))}),keepU=keepUniforms(keep);
   const tMat=terrainMaterial(shared);clipToKeep(tMat,keepU,null);
@@ -156,8 +156,8 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   scene.add(object);
 
   onProgress(.6,'Binalar');
-  // BİLSEM ayak izine düşen OSM kutuları (varsa) temsili modelle değişir
-  const osmBuildings=(buildingData?.buildings||[]).filter(b=>{if(!bilsemPlace)return true;const n=b.ring.length,cx=b.ring.reduce((s,p)=>s+p[0],0)/n,cz=b.ring.reduce((s,p)=>s+p[1],0)/n;return !bilsemPlace.building.inside(cx,cz)});
+  // BİLSEM ve Fen Lisesi ayak izine düşen OSM kutuları (varsa) temsili modelle değişir
+  const osmBuildings=(buildingData?.buildings||[]).filter(b=>{if(!bilsemPlace)return true;const n=b.ring.length,cx=b.ring.reduce((s,p)=>s+p[0],0)/n,cz=b.ring.reduce((s,p)=>s+p[1],0)/n;return !bilsemPlace.buildings.some(x=>x.inside(cx,cz))});
   const obstacles=createObstacleIndex(osmBuildings,terrainHeight);
   const bm=createCityBuildings(obstacles.list,{anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});if(bm)object.add(bm);
   const layers=[];
@@ -170,6 +170,7 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   // OSM verisi yoksa ya da bir yapı bulunamadıysa Saat Kulesi (başlangıç) ve BİLSEM (kalkış) bölge dosyasından gelir
   const raw=[...(landmarkData?.landmarks||[])];
   if(!raw.some(l=>l.id==='saat-kulesi'))raw.push({id:'saat-kulesi',name:'Saat Kulesi',lon:region.origin.lon,lat:region.origin.lat});
+  if(bilsemPlace?.fen&&!raw.some(l=>l.id==='fen-lisesi'))raw.push({id:'fen-lisesi',name:bilsemPlace.fen.building.name,x:bilsemPlace.fen.building.x,z:bilsemPlace.fen.building.z});
   if(!raw.some(l=>l.id==='bilsem')){const b=bilsemPlace?.building;if(b)raw.push({id:'bilsem',name:'Altıeylül BİLSEM',x:b.x,z:b.z});else if(homeLocal)raw.push({id:'bilsem',name:'Altıeylül BİLSEM',x:homeLocal.x,z:homeLocal.z})}
   const landmarks={landmarks:raw.map(l=>{const q=Number.isFinite(l.x)?l:lonLatToLocal(l.lon,l.lat);return {...l,x:q.x,z:q.z}})};
   if(quality)environment.setQuality?.(quality);

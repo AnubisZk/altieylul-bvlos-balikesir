@@ -16,4 +16,5 @@ export const HERITAGE = [
   {id:'kuvayi-milliye',name:'Kuva-yi Milliye Müzesi',distance:110},
   {id:'ataturk-parki',name:'Atatürk Parkı',distance:300},
   {id:'bilsem',name:'Altıeylül BİLSEM',distance:120},
+  {id:'fen-lisesi',name:'Altıeylül Fen Lisesi',distance:120},
 ];

@@ -92,3 +92,18 @@ test('BİLSEM tip proje binası: hacimler ölçülen kutuda, çatı ölçülen y
   assert.ok(plan.heightAt(plan.dims.x0+4,b.hv-0.5)>plan.dims.wallTop);
   assert.ok(Math.abs(plan.heightAt(20,0)-(plan.dims.wallTop+plan.dims.k*(b.hv-3+plan.dims.o-0.25)))<0.6);
 });
+
+test('Fen Lisesi: BİLSEM arkasında (kuzey), aynı tip proje aynalı, aralarında avlu, koruma alanı sınırı aşılmaz',()=>{
+  setGeoRegion(region,u);
+  const data=JSON.parse(fs.readFileSync('data/bal/bilsem.json','utf8'));
+  const p=bilsemPlacement(data,()=>160),b=p.building,f=p.fen;
+  assert.ok(f,'fenLisesi verisi');
+  const [a,c]=b.local(f.building.x,f.building.z);
+  assert.ok(c<-60&&c>-90&&Math.abs(a)<30,`Fen BİLSEM'in arkasında: ${a.toFixed(0)} m doğu, ${(-c).toFixed(0)} m kuzey`);
+  assert.ok(-c-2*b.hv>35,'aradaki avlu en az 35 m');
+  assert.equal(f.plan.s,-1,'Fen Lisesi aynalı: merdiven bloğu doğuda');assert.equal(p.plan.s,1,'BİLSEM: merdiven bloğu batıda');
+  assert.ok(f.plan.top<=data.building.height+0.01);
+  assert.ok(!f.building.inside(home.x,home.z,20),'ped Fen Lisesi\'nden uzak');
+  assert.ok(keepZones({home,extra:p.boxes.map(x=>x.keep(1.5))}).length<=4,'pad + BİLSEM + kamelya + Fen = 4 koruma alanı');
+  assert.ok(HERITAGE.some(h=>h.id==='fen-lisesi'));
+});

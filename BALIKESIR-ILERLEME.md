@@ -7,10 +7,28 @@ dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturu
 ## Kısa durum (3 Kasım 2026, 23:00)
 
 - Canlı: https://altieylul-bvlos-balikesir.vercel.app · depo `AnubisZk/altieylul-bvlos-balikesir` (main → Vercel otomatik).
-- Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası (MEB tip
-  projesi, yordamsal, temsili) + kamelya (Meshy), kalkış pedi BİLSEM ön avlusunda, Saat Kulesi çevresinde 6 noktalı tur,
-  Balıkesir müziği.
+- Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası ve
+  arkasındaki Altıeylül Fen Lisesi (MEB tip projesi, yordamsal, temsili) + BİLSEM kamelyası (Meshy), kalkış pedi BİLSEM
+  ön avlusunda, Saat Kulesi çevresinde 6 noktalı tur, Balıkesir müziği.
 - Açık işler: aşağıda "Sıradaki adımlar".
+
+## 3 Kasım 2026, 23:30 · Altıeylül Fen Lisesi eklendi, yan cepheler, çatı rengi
+
+- Zafer Hoca: BİLSEM'de penceresiz büyük yan duvar **doğu** ucunda, camlı merdiven bloğu batıda (model zaten öyle;
+  doğu cephedeki uydurma pencereler kaldırıldı). Fen Lisesi bunun tersi: merdiven bloğu doğuda, penceresiz duvar batıda
+  boş arsaya bakar (hava fotoğrafı). "Beri tarafta boş alan ve duvar var; Fen'de daha fazla, BİLSEM'de az" — arsa ve
+  çevre duvarı modellenmedi (Karma görünümde Google zemini gösteriyor).
+- **Fen Lisesi** (`bilsem.json → fenLisesi`): aynı tip proje, aynı ölçü ve yön, `style.endBlock: "east"` (aynalı).
+  Konum Zafer Hoca'nın Google Haritalar uydu ekran görüntüsünden: Fen ve BİLSEM çatıları ile "Altıeylül Fen Lisesi
+  Müdürlüğü" iğnesi (39.628403, 27.879561 — iğne binanın kuzeydoğusunda, çatı değil) karşılaştırıldı, BİLSEM'deki
+  eğiklik düzeltmesi aynen uygulandı → merkez 39.628317, 27.878992 (BİLSEM'in ~74 m kuzeyi, ~14 m doğusu; ±5 m).
+  Aynı görüntüde kamelya modeldeki yerine 3–4 m içinde oturuyor (ölçek ve hizalama doğrulaması).
+  Renkler ön cephe fotoğrafından: 4. kat kırmızı, 2. kat mavi, giriş yeşil, uç blok turuncu çerçeve; tabela
+  "ALTIEYLÜL FEN LİSESİ", girişin solunda bayrak direği. Yapı inceleme listesinde "Altıeylül Fen Lisesi" var.
+- Koruma alanları artık 4 (ped, BİLSEM, kamelya, Fen Lisesi) — `keep-zone.js MAX_KEEP` dolu; yeni özel model
+  eklenecekse sınır büyütülmeli. Fen ayak izine düşen OSM kutusu yok.
+- Çatı rengi fotoğraflardaki turuncu kiremide yaklaştırıldı (`style.roof`, varsayılan `#c47a55`).
+- `npm test` 87/87.
 
 ## 3 Kasım 2026, 23:00 · BİLSEM binası tip projeye göre yeniden kuruldu
 
@@ -164,8 +182,9 @@ ve kalkışa 250 m içindeki OSM adlarını yazar. OSM'deki Saat Kulesi konumu G
 
 ## Sıradaki adımlar
 
-0. Zafer Hoca yeni BİLSEM binasına baksın: bant renkleri, merdiven bloğunun hangi uçta olduğu (batı/doğu), giriş ve
-   bayrak direği. Bahçe için BİLSEM'in ön bahçesinden fotoğraf (çim/avlu, çam fidanları, yollar).
+0. Zafer Hoca canlıda iki okula baksın: BİLSEM bant renkleri, Fen Lisesi'nin yeri (±5 m; kaydırma yalnız
+   `bilsem.json → fenLisesi.center`), Karma görünümde Google zeminiyle uyum. Bahçe için BİLSEM'in ön bahçesinden
+   fotoğraf (çim/avlu, çam fidanları, yollar); batıdaki boş alan ve duvarın ölçüsü.
 1. Zafer Hoca canlı sitede BİLSEM'i kontrol etsin: binanın yeri/yönü, kamelya ve ped konumu, Karma görünümde Google
    zemini ile uyum. Kaydırma gerekirse yalnız `data/bal/bilsem.json` (building.center, kamelya.at) ve
    `region.json home` değişir; testler (`tests/balikesir.test.mjs`) tutarlılığı denetler.
