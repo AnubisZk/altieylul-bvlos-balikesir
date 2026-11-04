@@ -4,7 +4,7 @@
 dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturuma yapıştırılacak başlangıç mesajı:
 `CLAUDE-BALIKESIR-BASLANGIC-MESAJI.txt`.
 
-## Kısa durum (4 Kasım 2026, 21:30)
+## Kısa durum (4 Kasım 2026, 22:10)
 
 - Canlı: https://altieylul-bvlos-balikesir.vercel.app · depo `AnubisZk/altieylul-bvlos-balikesir` (main → Vercel otomatik).
 - Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası ve
@@ -13,6 +13,14 @@ dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturu
   Balıkesir Garı; yordamsal, temsili), kalkış pedi BİLSEM ön bahçesinde, Saat Kulesi çevresinde 6 noktalı tur,
   Balıkesir müziği.
 - Açık işler: aşağıda "Sıradaki adımlar".
+
+## 4 Kasım 2026, 22:10 · Merdiven soldan kısaldı, Atatürk köşesi yeni uca
+
+- Zafer Hoca canlı sitenin ekran görüntüsünü işaretledi: batı kanadının önündeki merdiven yok; merdiven giriş bölümünün
+  ~3 m batısından başlar, büst ve bayrak merdivenin bu yeni batı ucunda. Teras ve merdiven `ca0 − 3.2 m`'den başlıyor
+  (`style.terraceWest` ile değişir), batı ucunda alçak yan duvar; korkuluklar fotoğraftaki gibi 4. Atatürk köşesi
+  `bahce.ataturk.at` = [-16, 13.6] (yan duvarın dibi); kaide (siyah, yazılı) ve bayrak direği (büstün doğusunda)
+  Zafer Hoca'nın isteğiyle aynı kaldı. `npm test` 88/88 (batı kanadının önünde merdiven olmadığı da denetleniyor).
 
 ## 4 Kasım 2026, 21:30 · BİLSEM avlusu ve cephesi fotoğraflara göre
 
@@ -41,8 +49,8 @@ dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturu
   görünüyor; bu yüzden `style.endBlock: "east"` yapıldı (3 Kasım'daki "penceresiz duvar doğuda" cevabının tersi; batı
   yüzü artık penceresiz). Yanlışsa tek satır: `bilsem.json → style.endBlock: "west"`. Fen Lisesi de doğuda (hava
   fotoğrafı), iki okul artık aynalı değil.
-- **Atatürk köşesi** merdivenin batı ucuna taşındı (fotoğraflarda büst ve bayrak binanın batı köşesinde, merdivenin
-  yanında): `bahce.ataturk.at` = [-28.3, 14.6]; bayrak büstün girişe yakın (doğu) yanında.
+- **Atatürk köşesi** merdivenin batı ucuna taşındı: `bahce.ataturk.at` = [-28.3, 14.6]; bayrak büstün girişe yakın
+  (doğu) yanında. (22:10'da merdiven kısaldı, köşe [-16, 13.6]'ya geldi.)
 - `npm test` 88/88 (yeni denetimler: giriş bölümü geride, merdiven bloğu doğuda, teras alçak, avlu düz ve kuzeyde araziye
   bağlanıyor, duvarlar pede uzak). Headless'ta avlu, cephe, giriş, Atatürk köşesi, doğu ucu ve kuşbakışı kontrol edildi;
   Karma görünümde Google zeminiyle birleşme (duvar üstleri, doğu/kuzey kenarı) canlıda bakılmalı.

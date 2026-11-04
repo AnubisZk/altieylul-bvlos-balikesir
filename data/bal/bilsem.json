@@ -435,13 +435,13 @@
     ],
     "ataturk": {
       "at": [
-        -28.3,
-        14.6
+        -16,
+        13.6
       ],
       "poles": [
         "east"
       ],
-      "note": "Atatürk köşesi merdivenin batı ucunda (Zafer Hoca'nın fotoğrafları): siyah daralan kaide, altın \"NE MUTLU TÜRKÜM DİYENE\", altın büst (temsili); tek bayrak, büstün girişe yakın (doğu) yanında. poles: [\"east\"] | [\"west\",\"east\"] | []."
+      "note": "Atatürk köşesi merdivenin batı ucunda, yan duvarın dibinde (Zafer Hoca, 4 Kasım: merdiven orta bölümün ~3 m batısından başlar, solunda merdiven yok): siyah daralan kaide, altın \"NE MUTLU TÜRKÜM DİYENE\", altın büst (temsili); tek bayrak, büstün girişe yakın (doğu) yanında. poles: [\"east\"] | [\"west\",\"east\"] | []."
     }
   },
   "model": {

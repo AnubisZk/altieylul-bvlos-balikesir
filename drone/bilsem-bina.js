@@ -2,7 +2,8 @@
 // Zafer Hoca'nın fotoğrafları (BİLSEM ön cephe ve avlu, 4 Kasım; Fen Lisesi ön, arka ve hava, 3 Kasım): dört kat ve
 // yükseltilmiş zemin kat; batı ve doğu kanatları önde, ortadaki giriş bölümü 1.5 m geride; 2. ve 4. katta somon bant ve
 // kiremit kırmızısı çerçeve; ortada cam saçaklı giriş, kapı üstünde logo şeridi, iki kat arasında okul tabelası; cephe
-// boyunca teras, önünde geniş merdiven ve paslanmaz korkuluklar, doğu kanadı boyunca engelli rampası; doğu ucunda merdiven
+// önünde teras ve geniş merdiven (orta bölümün ~3 m batısından başlar), paslanmaz korkuluklar, doğu kanadı boyunca engelli
+// rampası; doğu ucunda merdiven
 // bloğu (ön yüzde tek çerçeveli pencereler, doğu yüzünde dikey cam şerit, arkada küçük kare WC pencereleri); arkada camlı
 // merdiven kulesi; batı yüzü penceresiz; geniş saçaklı alçak kırma çatı. Ölçüler temsilidir; dış kutu Google uydu
 // görüntüsünden ölçülen kutudur (bilsem.json → building). Renk ve yazılar data/bal/bilsem.json → style.
@@ -37,9 +38,10 @@ export function binaPlan({hu,hv,height},style={}){
   // ana çatı bütün gövdeyi örter; uç blok çatısı arkaya taşan kısmını (iki kırma çatının birleşimi)
   const roofs=[{name:'ana çatı',x0:x0-o,x1:x1+o,z0:bb-o,z1:fw+o,y:wallTop,k},
     {name:'uç blok çatısı',x0:xe-o,x1:x1+o,z0:be-o,z1:fe+o,y:wallTop,k}];
-  // teras (zemin kat düzeyi), önünde merdiven; rampa doğu kanadı boyunca doğuya iner
+  // teras (zemin kat düzeyi), önünde merdiven; giriş bölümünün ~3 m batısından başlar (Zafer Hoca, 4 Kasım: solda merdiven
+  // yok, büst ve bayrak merdivenin batı ucunda); rampa doğu kanadı boyunca doğuya iner
   const tY=st.plinth-0.05,tf=fw+2.2,steps=Math.max(3,Math.round(tY/0.175)),run=steps*0.32;
-  const terrace={x0:x0+2.9,x1:ca1,z1:tf,top:tY},stair={x0:terrace.x0+0.2,x1:ca1-1.4,z0:tf,z1:tf+run,steps};
+  const terrace={x0:ca0-(st.terraceWest??3.2),x1:ca1,z1:tf,top:tY},stair={x0:terrace.x0+0.2,x1:ca1-1.4,z0:tf,z1:tf+run,steps};
   const ramp=st.ramp?{x0:ca1,x1:ca1+19.5,z0:fw+0.15,z1:fw+2.15,top:tY}:null;
   const low=[{x0:terrace.x0,x1:terrace.x1,z0:fc,z1:tf,top:tY},{x0:stair.x0,x1:stair.x1,z0:tf,z1:tf+run,top:tY/2},
     ...(ramp?[{x0:ramp.x0,x1:ramp.x1,z0:ramp.z0,z1:ramp.z1,top:tY*0.55}]:[])];
@@ -157,9 +159,9 @@ export function createBinaObject(plan,{groundAt=()=>0,anisotropy=4}={}){
   const t=plan.terrace,sr=plan.stair;
   box('stone',t.x0,t.x1,-1.2,t.top,fc,t.z1);box('stone',t.x0,t.x1-CENTER+0.01,-1.2,t.top,fw-0.01,t.z1);
   box('stoneTop',t.x0,t.x1,t.top,t.top+0.05,fw,t.z1);box('stoneTop',ca0,ca1,t.top,t.top+0.05,fc,fw);
-  box('stone',t.x0-0.25,t.x0+0.05,-1.2,t.top+0.5,fw,t.z1+0.05);                       // batı ucu alçak duvar
+  box('stoneTop',t.x0-0.3,t.x0+0.05,-1.2,t.top+0.55,fw,t.z1+0.05);                    // batı ucu alçak yan duvar
   for(let i=0;i<sr.steps;i++){const y=t.top*(1-(i+1)/sr.steps);box('stone',sr.x0,sr.x1,-1.2,y,sr.z0+i*0.32,sr.z0+(i+1)*0.32)}
-  const railX=[];for(let k=0;k<=5;k++)railX.push(sr.x0+0.3+(sr.x1-sr.x0-0.6)*k/5);
+  const railX=[];for(let k=0;k<=3;k++)railX.push(sr.x0+0.3+(sr.x1-sr.x0-0.6)*k/3);   // dört paslanmaz korkuluk (fotoğraf)
   for(const x of railX){const pA=[x,t.top+0.9,sr.z0-0.4],pB=[x,0.9,sr.z1+0.2];tube('steel',pA,pB,0.025);tube('steel',[x,t.top+0.45,sr.z0-0.4],[x,0.45,sr.z1+0.2],0.015);
     for(let q=0;q<=3;q++){const f=q/3,p=[x,t.top*(1-f)+0.0,sr.z0-0.4+(sr.z1+0.6-sr.z0)*f];tube('steel',[p[0],p[1]-(q===3?0:0),p[2]],[p[0],p[1]+0.9,p[2]],0.022)}}
   if(plan.ramp){const r=plan.ramp,len=r.x1-r.x0,sl=Math.atan2(r.top,len);

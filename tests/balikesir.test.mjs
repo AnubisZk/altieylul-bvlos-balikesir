@@ -105,7 +105,7 @@ test('BİLSEM tip proje binası: hacimler ölçülen kutuda, çatı ölçülen y
   assert.equal(p.pole,null,'BİLSEM bayrağı giriş önünde değil, Atatürk köşesinde');
   // çatı: ana çatı ortada sırtta, uç bloğun arkaya taşan kısmında uç blok çatısı; teras ve merdiven alçak
   const D=plan.dims;assert.ok(plan.heightAt(0,0)>D.wallTop+2);assert.ok(plan.heightAt(D.x1-2,D.be+0.5)>D.wallTop);
-  const tr=plan.heightAt(-15,D.fw+1.8);assert.ok(tr>0.5&&tr<2,'teras zemin kat düzeyinde');
+  const tr=plan.heightAt(-10,D.fw+1.8);assert.ok(tr>0.5&&tr<2,'teras zemin kat düzeyinde');assert.equal(plan.heightAt(-20,D.fw+3),-Infinity,'batı kanadının önünde merdiven yok');
 });
 
 test('Fen Lisesi: BİLSEM arkasında (kuzey), aynı tip proje aynalı, aralarında avlu, koruma alanı sınırı aşılmaz',()=>{
