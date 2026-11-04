@@ -132,7 +132,6 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   ]);
   const fallback=region.fallbackElevation??140;
   const terrainHeight=heightSampler(grid,fallback);
-  const ground=terrainHeight;
   const sources={terrain:grid?grid.source||'GLO-30':'geçici düz zemin',buildings:buildingData?buildingData.source||'OSM':'yok',landmarks:landmarkData?'veri':'varsayılan'};
 
   const shared={
@@ -157,9 +156,13 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   // BİLSEM binası, kamelyası ve Fen Lisesi (bilsem.js), tarihi yapılar (tarihi-yapilar.js): Google ağı bahçelerinde atılır,
   // temsili modeller görünür (keep-zone.js MAX_KEEP koruma alanı)
   const bilsemPlace=bilsemData?.model&&loader?bilsemPlacement(bilsemData,terrainHeight):null;
+  // BİLSEM avlusu düz (yamaca oyulmuş meydan): fizik zemini, kaplama ve kalkış pedi oraya oturur; dışında DEM
+  const yard=bilsemPlace?.yard||null;
+  const ground=yard?(x,z)=>yard.heightAt(x,z,terrainHeight)??terrainHeight(x,z):terrainHeight;
+  const surface=yard?(x,z)=>yard.heightAt(x,z,terrainSurface)??terrainSurface(x,z):terrainSurface;
   const heritagePlace=heritageData?heritagePlacement(heritageData,terrainHeight):null;
   const keep=keepZones({home:homeLocal,extra:[...(bilsemPlace?.keepZones||[]),...(heritagePlace?.keepZones||[])]}),keepU=keepUniforms(keep);
-  const tMat=terrainMaterial(shared);clipToKeep(tMat,keepU,null);
+  const tMat=terrainMaterial(shared);clipToKeep(tMat,keepU,null,null,{holes:true});   // bahçe/avlu alanlarında zemin kaplamadır
   const terrainMesh=new T.Mesh(geo,tMat);terrainMesh.receiveShadow=true;terrainMesh.name='city-terrain';
   const object=new T.Group();object.name='city-world';object.add(terrainMesh);
   const terrain={object,shared,stats:{loaded:1},getHeight:ground,isWater:()=>false,update(){}};
@@ -170,12 +173,12 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   const osmBuildings=(buildingData?.buildings||[]).filter(b=>{
     if(heritagePlace?.removes(b.ring))return false;if(!bilsemPlace)return true;
     const n=b.ring.length,cx=b.ring.reduce((s,p)=>s+p[0],0)/n,cz=b.ring.reduce((s,p)=>s+p[1],0)/n;return !bilsemPlace.buildings.some(x=>x.inside(cx,cz))});
-  const obstacles=createObstacleIndex(osmBuildings,terrainHeight);
+  const obstacles=createObstacleIndex(osmBuildings,ground);
   const bm=createCityBuildings(obstacles.list,{anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});if(bm)object.add(bm);
   const layers=[];
   if(bilsemPlace){
     onProgress(.8,'BİLSEM binası');
-    try{const layer=await createBilsemLayer({loader,data:bilsemData,ground:terrainHeight,surface:terrainSurface,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});layers.push(layer);object.add(layer.object);sources.bilsem=layer.stats.source}
+    try{const layer=await createBilsemLayer({loader,data:bilsemData,ground,surface,place:bilsemPlace,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});layers.push(layer);object.add(layer.object);sources.bilsem=layer.stats.source}
     catch(e){console.warn('[bilsem] model yüklenemedi',e.message);sources.bilsem='yüklenemedi'}
   }
   if(heritagePlace&&loader){
@@ -211,7 +214,7 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
     update(dt,cam){environment.update(dt,cam);for(const l of layers)l.update?.(dt,cam)},
     keepZones:keep,
     // BİLSEM bahçesi (kalkış pedi yanı, düz çim): Google ağının dikey kalibrasyon noktası; zemin yüksekliği DEM'den
-    realCityAnchor:homeLocal?{x:homeLocal.x+12,z:homeLocal.z,y:terrainHeight(homeLocal.x+12,homeLocal.z)}:null,
+    realCityAnchor:homeLocal?{x:homeLocal.x+12,z:homeLocal.z,y:ground(homeLocal.x+12,homeLocal.z)}:null,
     /** Gerçekçi şehir: koruma alanı dışında arazimiz gizlenir; boxes=true (karma) ise OSM kutu binalar Google zemininde kalır. */
     setRealCity(on,{boxes=false}={}){keepU.uKeepMode.value=on?2:0;if(bm)bm.visible=!on||boxes},
   };

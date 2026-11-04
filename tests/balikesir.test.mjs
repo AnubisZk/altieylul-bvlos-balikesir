@@ -83,6 +83,12 @@ test('BİLSEM binası: ölçülen konum ve ölçüde, kalkış pedi ön avluda, 
   const poles=p.yardObstacles.filter(o=>o.name==='bayrak direği'),bust=p.yardObstacles.find(o=>o.name==='Atatürk büstü');
   assert.equal(poles.length,1,'tek bayrak');assert.ok(b.local(poles[0].x,poles[0].z)[0]>b.local(bust.x,bust.z)[0],'bayrak büstün girişe yakın (doğu) yanında');
   assert.ok(p.yardObstacles.some(o=>o.name==='Atatürk büstü')&&p.yardObstacles.some(o=>o.name==='bayrak direği'));
+  // avlu düz (bina tabanı), açık kenarlarda araziye bağlanır; duvarlar avlu kenarında, ped ve kamelya duvarlardan uzak
+  const P2=bilsemPlacement(data,(x,z)=>160+0.05*(x-p.building.x)),yd=P2.yard,w0=P2.world(-8,30);
+  assert.ok(Math.abs(yd.heightAt(w0.x,w0.z)-P2.building.bottom)<1e-6,'avlu düz');
+  const wn=P2.world(10,yd.zone.b0+0.5);assert.ok(Math.abs(yd.heightAt(wn.x,wn.z)-P2.building.bottom)>0.01,'kuzey kenarı araziye bağlanır');
+  const out=P2.world(10,yd.zone.b1+1);assert.equal(yd.heightAt(out.x,out.z),null);
+  assert.equal(P2.walls.length,2);for(const w of P2.walls){const [ha,hb]=P2.building.local(home.x,home.z);assert.ok(ha<w.a0-8||ha>w.a1+8||hb<w.b0-8||hb>w.b1+8,'ped duvara yakın')}
 });
 
 test('BİLSEM tip proje binası: hacimler ölçülen kutuda, çatı ölçülen yükseklikte, ped/kamelya/bayrak direği bina dışında',()=>{
@@ -93,12 +99,13 @@ test('BİLSEM tip proje binası: hacimler ölçülen kutuda, çatı ölçülen y
   for(const v of plan.vols)assert.ok(v.x0>=-b.hu-1e-6&&v.x1<=b.hu+1e-6&&v.z0>=-b.hv-1e-6&&v.z1<=b.hv+1e-6,v.name+' kutu dışında');
   assert.ok(plan.top<=data.building.height+0.01,`çatı ${plan.top.toFixed(1)} m`);
   assert.ok(plan.heightAt(0,0)>plan.dims.wallTop,'ortada mahya');
-  assert.ok(plan.vols[0].x1<0,'merdiven bloğu batı ucunda (Meshy)');
+  const uc=plan.vols.find(v=>v.name==='uç blok');assert.ok(uc.x0>0&&plan.s===1,'merdiven bloğu doğu ucunda (Zafer Hoca\'nın fotoğrafı: doğu yüzünde dikey cam şerit)');
+  const giris=plan.vols.find(v=>v.name==='giriş bölümü'),kanat=plan.vols.find(v=>v.name==='batı kanadı');assert.ok(giris.z1<kanat.z1-1,'giriş bölümü kanatlardan geride');
   for(const q of [home,p.kamelya]){const [a,c]=b.local(q.x,q.z);assert.equal(plan.heightAt(a,c),-Infinity)}
   assert.equal(p.pole,null,'BİLSEM bayrağı giriş önünde değil, Atatürk köşesinde');
-  // çatı birleşimi: uç bloğun öne taşan kısmında uç blok çatısı, ana bloğun ortasında ana çatı
-  assert.ok(plan.heightAt(plan.dims.x0+4,b.hv-0.5)>plan.dims.wallTop);
-  assert.ok(Math.abs(plan.heightAt(20,0)-(plan.dims.wallTop+plan.dims.k*(b.hv-3+plan.dims.o-0.25)))<0.6);
+  // çatı: ana çatı ortada sırtta, uç bloğun arkaya taşan kısmında uç blok çatısı; teras ve merdiven alçak
+  const D=plan.dims;assert.ok(plan.heightAt(0,0)>D.wallTop+2);assert.ok(plan.heightAt(D.x1-2,D.be+0.5)>D.wallTop);
+  const tr=plan.heightAt(-15,D.fw+1.8);assert.ok(tr>0.5&&tr<2,'teras zemin kat düzeyinde');
 });
 
 test('Fen Lisesi: BİLSEM arkasında (kuzey), aynı tip proje aynalı, aralarında avlu, koruma alanı sınırı aşılmaz',()=>{
@@ -109,7 +116,7 @@ test('Fen Lisesi: BİLSEM arkasında (kuzey), aynı tip proje aynalı, araların
   const [a,c]=b.local(f.building.x,f.building.z);
   assert.ok(c<-60&&c>-90&&Math.abs(a)<30,`Fen BİLSEM'in arkasında: ${a.toFixed(0)} m doğu, ${(-c).toFixed(0)} m kuzey`);
   assert.ok(-c-2*b.hv>35,'aradaki avlu en az 35 m');
-  assert.equal(f.plan.s,-1,'Fen Lisesi aynalı: merdiven bloğu doğuda');assert.equal(p.plan.s,1,'BİLSEM: merdiven bloğu batıda');
+  assert.equal(f.plan.s,1,'Fen Lisesi: merdiven bloğu doğuda');assert.equal(p.plan.s,1,'BİLSEM: merdiven bloğu doğuda (aynı tip proje)');
   assert.ok(f.plan.top<=data.building.height+0.01);
   assert.ok(!f.building.inside(home.x,home.z,20),'ped Fen Lisesi\'nden uzak');
   assert.ok(keepZones({home,extra:p.keepZones}).length<=MAX_KEEP,'ped + BİLSEM bahçesi + Fen avlusu');

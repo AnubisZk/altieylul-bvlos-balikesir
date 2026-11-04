@@ -4,15 +4,48 @@
 dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturuma yapıştırılacak başlangıç mesajı:
 `CLAUDE-BALIKESIR-BASLANGIC-MESAJI.txt`.
 
-## Kısa durum (4 Kasım 2026, 02:00)
+## Kısa durum (4 Kasım 2026, 21:30)
 
 - Canlı: https://altieylul-bvlos-balikesir.vercel.app · depo `AnubisZk/altieylul-bvlos-balikesir` (main → Vercel otomatik).
 - Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası ve
-  arkasındaki Altıeylül Fen Lisesi (MEB tip projesi, yordamsal, temsili) + BİLSEM kamelyası (Meshy), BİLSEM bahçesi ve
-  Atatürk köşesi, Fen Lisesi beton avlusu, tarihi yapılar (Saat Kulesi, Kuva-yi Milliye Müzesi, Zağnos Paşa Camii,
+  arkasındaki Altıeylül Fen Lisesi (MEB tip projesi, yordamsal, temsili) + BİLSEM kamelyası (Meshy), BİLSEM avlusu
+  (düz beton meydan, istinat duvarları, fotoğraflara göre) ve Atatürk köşesi, Fen Lisesi beton avlusu, tarihi yapılar (Saat Kulesi, Kuva-yi Milliye Müzesi, Zağnos Paşa Camii,
   Balıkesir Garı; yordamsal, temsili), kalkış pedi BİLSEM ön bahçesinde, Saat Kulesi çevresinde 6 noktalı tur,
   Balıkesir müziği.
 - Açık işler: aşağıda "Sıradaki adımlar".
+
+## 4 Kasım 2026, 21:30 · BİLSEM avlusu ve cephesi fotoğraflara göre
+
+- Zafer Hoca BİLSEM avlusunun ve ön cephesinin 11 fotoğrafını gönderdi ("okul bahçesi böyle").
+- **Avlu** (`bilsem.json → bahce`, `drone/bilsem-bahce.js`): yamaca oyulmuş düz beton meydan. Güneyde boyası dökülen sarı
+  istinat duvarı (5 m, üstünde demir parmaklık), batıda gri kalıp izli beton duvar (6 m, üstünde tel çit); duvar
+  diplerinde bordür taşlı çim şeritler, köknar fidanları, genç ağaçlar (bazısı yapraksız, bazısı sarı), güneybatı
+  köşesinde büyük ağaç ve sarmaşık; çim kenarında 13 koyu bank ve çöp kutuları; 7 aydınlatma direği; batıda kamelya
+  (Meshy, yeri değişmedi), beyaz konteyner, bej taş blok, duvar dibinde beyaz pano; meydanda rögar kapakları, merdivene
+  giden hissedilebilir yüzey, doğuda turuncu dubalar. Duvar yerleri fotoğraf ve uydu görüntüsünden **tahmini (±5 m)**:
+  güney duvarı binanın ~35 m önünde ve binaya paralel (fotoğraflarda kaçış noktası bina ile aynı), batı duvarı batı
+  ucunun ~7 m ötesinde. Zafer Hoca iki duvar köşesinin Google Haritalar noktasını verirse `bahce.walls`/`zone` düzeltilir.
+- **Düz avlu**: DEM avlu boyunca batıdan doğuya ~6 m eğimliydi (bina batı ucunda ~3 m gömülüyordu). Artık avlu bina
+  tabanı düzeyinde düz (`bilsemPlacement → yard.heightAt`); duvarlı kenarlarda (batı, güney) düz, açık kenarlarda
+  (`open`: kuzey, doğu) son 6 m'de araziye bağlanır. Fizik zemini (`getGroundHeight`), kalkış pedi, rüzgâr çorabı, OSM
+  kutularının tabanı ve Google dikey kalibrasyon noktası (`realCityAnchor`) bu düz zemini kullanır.
+- **Koruma alanı "hole"**: `keep-zone.js` alanlarına `hole` bayrağı eklendi (vec3 `uKeepH`); bahçe/avlu alanlarında (BİLSEM,
+  Fen, dört tarihi yapı) arazi ağı her iki görünümde de atılır, zemin kaplamadır (`clipToKeep(..., {holes:true})`).
+- **Cephe** (`drone/bilsem-bina.js`, iki okul için aynı tip proje): batı ve doğu kanatları önde, ortadaki giriş bölümü
+  1.5 m geride; dört kat, yükseltilmiş zemin kat (1.4 m, bej taş subasman); somon bant (#eab09c) ve kiremit kırmızısı
+  çerçeve (#c2614c), antrasit doğramalar (fotoğraftan örneklenen renkler); cam saçak ve gergi çubukları, üç çift cam kapı,
+  üstünde renkli kurum levhaları şeridi (temsili kutular, logo değil); ikinci kat bandının üstünde okul tabelası (beyaz,
+  turkuaz çerçeve, temsili amblem, "BALIKESİR - ALTIEYLÜL / ALTIEYLÜL BİLİM VE SANAT MERKEZİ"); cephe boyunca teras ve
+  önünde 8 basamaklı geniş merdiven, altı paslanmaz korkuluk; doğu kanadı boyunca engelli rampası; klima dış ünitesi.
+- **Merdiven bloğu doğuda**: 4. fotoğrafta binanın doğu ucunun yan yüzünde dikey cam şerit (ve sarı levha) açıkça
+  görünüyor; bu yüzden `style.endBlock: "east"` yapıldı (3 Kasım'daki "penceresiz duvar doğuda" cevabının tersi; batı
+  yüzü artık penceresiz). Yanlışsa tek satır: `bilsem.json → style.endBlock: "west"`. Fen Lisesi de doğuda (hava
+  fotoğrafı), iki okul artık aynalı değil.
+- **Atatürk köşesi** merdivenin batı ucuna taşındı (fotoğraflarda büst ve bayrak binanın batı köşesinde, merdivenin
+  yanında): `bahce.ataturk.at` = [-28.3, 14.6]; bayrak büstün girişe yakın (doğu) yanında.
+- `npm test` 88/88 (yeni denetimler: giriş bölümü geride, merdiven bloğu doğuda, teras alçak, avlu düz ve kuzeyde araziye
+  bağlanıyor, duvarlar pede uzak). Headless'ta avlu, cephe, giriş, Atatürk köşesi, doğu ucu ve kuşbakışı kontrol edildi;
+  Karma görünümde Google zeminiyle birleşme (duvar üstleri, doğu/kuzey kenarı) canlıda bakılmalı.
 
 ## 4 Kasım 2026, 02:00 · Tarihi yapılar: Saat Kulesi, Kuva-yi Milliye Müzesi, Zağnos Paşa Camii, Balıkesir Garı
 
@@ -242,6 +275,8 @@ ve kalkışa 250 m içindeki OSM adlarını yazar. OSM'deki Saat Kulesi konumu G
 
 ## Sıradaki adımlar
 
+0. Zafer Hoca canlıda BİLSEM avlusuna baksın: duvarların yeri (iki duvar köşesinin Google Haritalar noktası gelirse
+   düzeltilir), Karma görünümde duvar üstlerinin Google zeminiyle birleşmesi, merdiven bloğunun doğuda olduğu.
 0. Zafer Hoca canlıda tarihi yapılara baksın: yerleri (kaydırma `tarihi-yapilar.json → center`, yön `front`), Google
    zemini ile birleşme, kule ve minare boyu. Atatürk Parkı için ne istendiği (ağaçlar, yollar, stadyum?).
 0. Zafer Hoca canlıda iki okula baksın: cephe önündeki Google tümseği kalktı mı, bahçe kenarında Google zemini ile

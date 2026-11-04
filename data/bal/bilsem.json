@@ -3,16 +3,11 @@
   "note": "Bina temsili tip proje modeli (Fen Lisesi fotoğrafları, Zafer Hoca); kamelya Meshy AI. Konum ve ölçü Google uydu karosundan (2D Map Tiles, 3 Kasım 2026) ölçüldü; çatı görüntüsü kuzeye bakan kamera eğikliği için ~9 m kuzeye kaydırıldı. Ölçüler yaklaşıktır.",
   "glb": "models/bilsem-bina.glb",
   "style": {
-    "note": "Bina: MEB tip projesi (Altıeylül Fen Lisesi ile aynı proje), drone/bilsem-bina.js. model: \"tip-proje\" | \"meshy\" (eski Meshy binası). Renkler Meshy modelinden; endBlock: merdiven bloğunun ucu (west | east). Kamelya her iki durumda Meshy.",
+    "note": "Bina: MEB tip projesi (Altıeylül Fen Lisesi ile aynı proje), drone/bilsem-bina.js. Zafer Hoca'nın 4 Kasım fotoğrafları: merdiven bloğu (dikey cam şeritli) doğu ucunda, batı yüzü penceresiz; somon bant ve kiremit kırmızısı çerçeve (varsayılan renkler). model: \"tip-proje\" | \"meshy\" (eski Meshy binası). endBlock: east | west.",
     "model": "tip-proje",
-    "endBlock": "west",
-    "bandFloors": [
-      1,
-      3
-    ],
-    "band": "#efc3b5",
-    "bandFrame": "#94353c",
+    "endBlock": "east",
     "sign": "ALTIEYLÜL BİLİM VE SANAT MERKEZİ",
+    "signTop": "BALIKESİR - ALTIEYLÜL",
     "flag": false
   },
   "building": {
@@ -40,139 +35,413 @@
     "note": "Görüntüde kamelya cepheden ~15 m önde, binanın batı ucunda (Meshy'deki yerinden ileride)."
   },
   "bahce": {
-    "note": "Zafer Hoca'nın BİLSEM fotoğrafı ve uydu görüntüsü: binanın önünde açık renk taş döşeme, önde ve batıda çim, çimde çam fidanları, döşemede banklar, kamelya döşemenin ön-batı köşesinde; Atatürk köşesi (girişin solu). Koordinatlar binaya göre yerel metre: a doğu (bina ekseni), b güney (ön cephe). zone: koruma alanı (Google ağı atılır, zemin bizim) — bina kutusundan yanlara side, arkaya back, öne front metre. plaza: taş döşeme dikdörtgenleri [a0,a1,b0,b1], geri kalanı çim. pines: [a,b,boy], saplings: [a,b], benches: [a,b,dönüş°]. Ped (-7.5, 33) çevresi boş tutulur.",
+    "note": "Zafer Hoca'nın avlu fotoğrafları (4 Kasım 2026): yamaca oyulmuş düz beton avlu, güneyde sarı (boyası dökülen) ve batıda gri beton istinat duvarı; duvar diplerinde çim şeritler, köknar ve genç ağaçlar, çim kenarında banklar, aydınlatma direkleri; batıda kamelya, beyaz konteyner ve taş blok. Koordinatlar binaya göre yerel metre: a doğu (bina ekseni), b güney (ön). zone: koruma alanı (Google ağı ve arazi atılır, zemin bizim); open: araziye bağlanan kenarlar. Duvar yerleri fotoğraf ve uydu görüntüsünden tahmini (±5 m): güney duvarı binanın ~35 m önünde, batı duvarı batı ucunun ~7 m ötesinde.",
     "zone": {
-      "side": 8,
-      "back": 8,
-      "front": 29
+      "a0": -37.6,
+      "a1": 45,
+      "b0": -21,
+      "b1": 48.6
     },
-    "plaza": [
+    "open": [
+      "north",
+      "east"
+    ],
+    "paveTone": "meydan",
+    "paveTile": 5,
+    "walls": [
+      {
+        "p0": [
+          -37,
+          -21
+        ],
+        "p1": [
+          -37,
+          48
+        ],
+        "out": [
+          -1,
+          0
+        ],
+        "h": 6,
+        "t": 0.6,
+        "kind": "gri",
+        "fence": "tel"
+      },
+      {
+        "p0": [
+          -37.6,
+          48
+        ],
+        "p1": [
+          45,
+          48
+        ],
+        "out": [
+          0,
+          1
+        ],
+        "h": 5,
+        "t": 0.6,
+        "kind": "sari",
+        "fence": "demir"
+      }
+    ],
+    "lawn": [
       [
-        -28,
-        37.6,
-        8,
-        30
-      ],
-      [
-        -28,
-        -16,
-        30,
-        35.5
+        -37.6,
+        45,
+        41,
+        48.6
       ],
       [
         -37.6,
-        37.6,
+        -31,
         -21,
-        -8
+        41
       ],
       [
-        29,
-        37.6,
-        -8,
-        30
-      ]
-    ],
-    "pines": [
-      [
-        -34,
-        39,
-        3.6
-      ],
-      [
-        -24,
-        39.5,
-        4.2
-      ],
-      [
-        -12,
-        38.5,
-        3.2
-      ],
-      [
-        0,
-        37.5,
-        3.8
-      ],
-      [
-        12,
-        38,
-        3.4
-      ],
-      [
-        24,
-        37,
-        4.4
-      ],
-      [
-        33,
-        39.5,
-        3.6
-      ],
-      [
-        -33,
-        20,
-        4.6
-      ],
-      [
-        -34,
-        6,
-        3.9
-      ],
-      [
-        -33,
-        -4,
-        4.2
-      ]
-    ],
-    "saplings": [
-      [
-        -18,
-        40
-      ],
-      [
-        6,
-        40.5
-      ],
-      [
+        -37.6,
+        -17.5,
         18,
-        35.5
+        41
+      ]
+    ],
+    "curbs": [
+      [
+        -17.5,
+        41,
+        45,
+        41
+      ],
+      [
+        -17.5,
+        18,
+        -17.5,
+        41
       ],
       [
         -31,
-        30
+        18,
+        -17.5,
+        18
+      ],
+      [
+        -31,
+        -21,
+        -31,
+        18
       ]
     ],
     "benches": [
       [
-        -15,
-        29,
-        0
+        -12.5,
+        40.3,
+        180
       ],
       [
-        14,
-        29,
-        0
+        -8,
+        40.3,
+        180
+      ],
+      [
+        -3.5,
+        40.3,
+        180
+      ],
+      [
+        1,
+        40.3,
+        180
+      ],
+      [
+        5.5,
+        40.3,
+        180
+      ],
+      [
+        10,
+        40.3,
+        180
+      ],
+      [
+        14.5,
+        40.3,
+        180
+      ],
+      [
+        19,
+        40.3,
+        180
+      ],
+      [
+        23.5,
+        40.3,
+        180
+      ],
+      [
+        28,
+        40.3,
+        180
+      ],
+      [
+        32.5,
+        40.3,
+        180
+      ],
+      [
+        37,
+        40.3,
+        180
+      ],
+      [
+        41.5,
+        40.3,
+        180
+      ]
+    ],
+    "bins": [
+      [
+        -10.25,
+        40.4
+      ],
+      [
+        3.25,
+        40.4
+      ],
+      [
+        16.75,
+        40.4
+      ],
+      [
+        30.25,
+        40.4
+      ]
+    ],
+    "lamps": [
+      [
+        -24,
+        43.2,
+        180
+      ],
+      [
+        -4,
+        43.2,
+        180
+      ],
+      [
+        16,
+        43.2,
+        180
+      ],
+      [
+        36,
+        43.2,
+        180
+      ],
+      [
+        -33.8,
+        2,
+        90
+      ],
+      [
+        -33.8,
+        24,
+        90
+      ],
+      [
+        -33,
+        38.5,
+        135
+      ]
+    ],
+    "firs": [
+      [
+        -29,
+        46.2,
+        2.2
+      ],
+      [
+        -15,
+        46.5,
+        1.8
+      ],
+      [
+        -1,
+        46.3,
+        2.4
+      ],
+      [
+        13,
+        46.4,
+        1.9
+      ],
+      [
+        27,
+        46.2,
+        2.3
+      ],
+      [
+        40,
+        46.5,
+        2
+      ],
+      [
+        -35,
+        10,
+        2
+      ],
+      [
+        -35.2,
+        -8,
+        1.7
+      ],
+      [
+        -34.5,
+        33,
+        2.2
+      ]
+    ],
+    "saplings": [
+      [
+        -22,
+        44.6,
+        3.6,
+        "sari"
+      ],
+      [
+        -8,
+        44.4,
+        3.3,
+        null
+      ],
+      [
+        6,
+        44.6,
+        3.8,
+        "yesil"
       ],
       [
         20,
-        29,
-        0
+        44.5,
+        3.2,
+        null
       ],
       [
-        -30.5,
-        24,
-        90
+        33,
+        44.6,
+        3.5,
+        "sari"
+      ],
+      [
+        -33.5,
+        16,
+        3.4,
+        "yesil"
+      ],
+      [
+        -26,
+        38.5,
+        3,
+        null
+      ],
+      [
+        -34.5,
+        -14,
+        3.2,
+        null
+      ]
+    ],
+    "trees": [
+      [
+        -33.5,
+        42.8,
+        6.5
+      ]
+    ],
+    "container": [
+      -16,
+      36.4,
+      0
+    ],
+    "stone": [
+      -16.3,
+      39.6
+    ],
+    "panel": [
+      -36.85,
+      28,
+      5
+    ],
+    "ivy": [
+      [
+        -36.9,
+        45,
+        3
+      ]
+    ],
+    "manholes": [
+      [
+        -6,
+        24
+      ],
+      [
+        8,
+        30
+      ],
+      [
+        -22,
+        22
+      ],
+      [
+        20,
+        26
+      ],
+      [
+        0,
+        -15
+      ]
+    ],
+    "tactile": [
+      -5.5,
+      16.9,
+      -5.5,
+      27
+    ],
+    "bollards": [
+      [
+        22,
+        17.2
+      ],
+      [
+        23.4,
+        17.2
+      ],
+      [
+        24.8,
+        17.2
+      ],
+      [
+        26.2,
+        17.2
+      ],
+      [
+        27.6,
+        17.2
+      ],
+      [
+        29,
+        17.2
       ]
     ],
     "ataturk": {
       "at": [
-        -3.4,
-        10.35
+        -28.3,
+        14.6
       ],
       "poles": [
         "east"
       ],
-      "note": "Atatürk köşesi girişin solunda, cepheye dayalı (Zafer Hoca'nın fotoğrafı): siyah daralan kaide, altın \"NE MUTLU TÜRKÜM DİYENE\", altın büst (temsili); tek bayrak, büstün girişe yakın (doğu) yanında 6 m paslanmaz direkte. poles: [\"east\"] | [\"west\",\"east\"] | []."
+      "note": "Atatürk köşesi merdivenin batı ucunda (Zafer Hoca'nın fotoğrafları): siyah daralan kaide, altın \"NE MUTLU TÜRKÜM DİYENE\", altın büst (temsili); tek bayrak, büstün girişe yakın (doğu) yanında. poles: [\"east\"] | [\"west\",\"east\"] | []."
     }
   },
   "model": {
@@ -212,7 +481,9 @@
       "entranceFrame": "#3d9a4b",
       "endFrame": "#e07b2c",
       "sign": "ALTIEYLÜL FEN LİSESİ",
-      "flag": true
+      "flag": true,
+      "signTop": "BALIKESİR - ALTIEYLÜL",
+      "ramp": false
     },
     "avlu": {
       "note": "Fen Lisesi: binanın çevresi beton avlu (fotoğraflar). zone: koruma alanı.",
