@@ -23,7 +23,7 @@ for(const track of Object.values(tracks))if(track.src){
   if(!/^music\/[a-z0-9-]+\.(mp3|m4a|ogg|wav)$/.test(track.src))throw Error('Invalid music asset path');
   fs.copyFileSync(track.src,path.join(dist,track.src));
 }
-fs.mkdirSync(path.join(dist,'models'),{recursive:true});for(const f of ['bilsem-surveyor.glb','bilsem-bina.glb'])if(fs.existsSync('models/'+f))fs.copyFileSync('models/'+f,path.join(dist,'models',f));
+fs.mkdirSync(path.join(dist,'models'),{recursive:true});for(const f of ['bilsem-surveyor.glb','bilsem-bina.glb','gar-levha.jpg'])if(fs.existsSync('models/'+f))fs.copyFileSync('models/'+f,path.join(dist,'models',f));
 fs.mkdirSync(path.join(dist,'vendor'),{recursive:true});for(const f of ['leaflet.js','leaflet.css'])fs.copyFileSync('node_modules/leaflet/dist/'+f,path.join(dist,'vendor',f));fs.cpSync('node_modules/leaflet/dist/images',path.join(dist,'vendor/images'),{recursive:true});
 fs.cpSync('node_modules/three/examples/jsm/libs/draco/gltf',path.join(dist,'vendor/draco'),{recursive:true});
 fs.mkdirSync(path.join(dist,'licenses'),{recursive:true});for(const pkg of ['three','leaflet','3d-tiles-renderer'])fs.copyFileSync('node_modules/'+pkg+'/LICENSE',path.join(dist,'licenses',pkg+'-LICENSE'));

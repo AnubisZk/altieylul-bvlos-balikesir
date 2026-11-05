@@ -1,7 +1,17 @@
 import tracks from './music-tracks.json';
-// Balıkesir'de konuma bağlı müzik bölgesi henüz yok (music-zone.js tek parçaya düşer).
-const zone=null;
+import zoneData from '../data/bal/music-zone.json';
 import {musicTrackAt} from './music-zone.js';
+import {lonLatToLocal} from '../src/geo.js';
+// Konuma bağlı müzik bölgesi (data/bal/music-zone.json): çember merkezi enlem/boylamdan yerel çerçeveye ilk konumda
+// çevrilir (bölge çerçevesi city-world.js'te kurulduktan sonra).
+let zone=null;
+function resolveZone(){
+  if(zone||!zoneData)return zone;
+  const c=zoneData.circle;
+  zone=c?{...zoneData,circle:{...lonLatToLocal(c.center[0],c.center[1]),radius:c.radius,hysteresis:c.hysteresis||0}}:zoneData;
+  if(zoneData.inside&&!tracks[zoneData.inside])zone=null;
+  return zone;
+}
 // One streaming audio element: selected by drone position, independent of camera and simulation speed.
 export function createMusic(){
   const audio=document.getElementById('background-music');
@@ -45,5 +55,5 @@ export function createMusic(){
   audio.addEventListener('playing',render);audio.addEventListener('pause',render);
   audio.addEventListener('error',()=>{failed=true;render()});
   select('balikesir');
-  return {updatePosition(position){select(musicTrackAt(position,zone,current));},setPaused(value){simPaused=value;sync()},setNarrating(value){narrating=value;sync()}};
+  return {updatePosition(position){select(musicTrackAt(position,resolveZone(),current));},setPaused(value){simPaused=value;sync()},setNarrating(value){narrating=value;sync()}};
 }

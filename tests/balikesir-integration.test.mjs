@@ -49,6 +49,12 @@ test('music: without a zone the single Balıkesir track plays; a zone switches o
   const box={ring:[[0,0],[100,0],[100,100],[0,100]],inside:'kule',outside:'balikesir'};
   assert.equal(musicTrackAt({x:2,z:50},box,'balikesir'),'kule');
   assert.equal(musicTrackAt({x:-2,z:50},box,'kule'),'balikesir');
+  // çember bölge (işaretlenen nokta): içeride bengi, kenarda çıkış payı
+  const zc={inside:'bengi',outside:'balikesir',circle:{x:100,z:100,radius:90,hysteresis:20}};
+  assert.equal(musicTrackAt({x:150,z:100},zc,'balikesir'),'bengi');
+  assert.equal(musicTrackAt({x:200,z:100},zc,'balikesir'),'balikesir');
+  assert.equal(musicTrackAt({x:200,z:100},zc,'bengi'),'bengi','çıkış payı');
+  assert.equal(musicTrackAt({x:215,z:100},zc,'bengi'),'balikesir');
 });
 test('Vercel public key overrides local configuration; missing keys clear any previous build configuration',()=>{
   const key='test-placeholder-not-a-real-key';

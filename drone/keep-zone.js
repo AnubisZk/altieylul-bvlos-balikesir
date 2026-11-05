@@ -3,7 +3,7 @@
 // (google-city.js) açıkken Google ağı bu dikdörtgenlerin içinde, bizim arazimiz dışında gölgelendiricide atılır.
 import * as T from 'three';
 
-export const MAX_KEEP=8;   // ped, BİLSEM bahçesi, Fen avlusu, Saat Kulesi, müze, cami, gar + 1
+export const MAX_KEEP=10;  // ped, BİLSEM bahçesi, Fen avlusu, Saat Kulesi, müze, cami, gar, stadyum + 2
 export const KEEP_GLSL=`uniform vec4 uKeepC[${MAX_KEEP}];uniform vec3 uKeepH[${MAX_KEEP}];uniform float uKeepN;uniform float uKeepMode;uniform float uKeepHoles;
 bool ankInKeep(vec2 p){for(int i=0;i<${MAX_KEEP};i++){if(float(i)>=uKeepN)break;vec2 d=p-uKeepC[i].xy,u=uKeepC[i].zw;
   if(abs(dot(d,u))<=uKeepH[i].x&&abs(dot(d,vec2(-u.y,u.x)))<=uKeepH[i].y)return true;}return false;}

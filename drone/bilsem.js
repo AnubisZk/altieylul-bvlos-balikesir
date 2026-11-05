@@ -19,6 +19,15 @@ export function orientedBox({x,z,u,hu,hv,bottom,top,name}){
     keep(margin=0){return {c:[x,z],u,h:[hu+margin,hv+margin]}}};
 }
 
+/** Düz avlu: alan içinde level; open kenarlarında (north = −b, south = +b, east = +a, west = −a) son 6 m'de araziye
+ *  bağlanır. heightAt(x,z,baseFn): avlu içinde yükseklik, dışında null. */
+export function flatYard(zone,level,open,local,ground,BLEND=6){
+  return {zone,level,heightAt(x,z,baseFn=ground){const [a,bb]=local(x,z);if(a<zone.a0||a>zone.a1||bb<zone.b0||bb>zone.b1)return null;
+    let t=1;if(open.includes('north'))t=Math.min(t,(bb-zone.b0)/BLEND);if(open.includes('east'))t=Math.min(t,(zone.a1-a)/BLEND);
+    if(open.includes('south'))t=Math.min(t,(zone.b1-bb)/BLEND);if(open.includes('west'))t=Math.min(t,(a-zone.a0)/BLEND);
+    t=Math.max(0,Math.min(1,t));return t>=1?level:level*t+baseFn(x,z)*(1-t)}};
+}
+
 /** bilsem.json → yerleşim (yerel metre). ground(x,z): DEM zemini. Model yüklemeden hesaplanır (test edilebilir). */
 export function bilsemPlacement(data,ground){
   const m=data.model,b=data.building;
@@ -33,21 +42,20 @@ export function bilsemPlacement(data,ground){
   if(data.fenLisesi){
     const f=data.fenLisesi,fc=lonLatToLocal(...f.center),fb=ground(fc.x,fc.z)-(f.sink??b.sink??0);
     const box=orientedBox({x:fc.x,z:fc.z,u,hu:building.hu,hv:building.hv,bottom:fb,top:fb+b.height,name:f.name});
+    const fzone=yardZone(box,f.avlu?.zone);
     const fplan=binaPlan({hu:building.hu,hv:building.hv,height:b.height},f.style);
     const fv=[-u[1],u[0]],fworld=(a,bb)=>({x:fc.x+a*u[0]+bb*fv[0],z:fc.z+a*u[1]+bb*fv[1]});
-    fen={id:'fen-lisesi',building:box,plan:fplan,world:fworld,zone:yardZone(box,f.avlu?.zone),yard:f.avlu||{},
+    // Fen avlusu da düz (bina tabanı düzeyi); dört kenarda araziye bağlanır, kenarlarda etek (Zafer Hoca, 5 Kasım: avlu havada kalıyordu)
+    fen={id:'fen-lisesi',building:box,plan:fplan,world:fworld,zone:fzone,yard:{skirt:['north','south','east','west'],...(f.avlu||{})},
+      flat:flatYard(fzone,fb,f.avlu?.open||['north','south','east','west'],box.local,ground),
       pole:fplan.st.flag?{...fworld(fplan.s*fplan.pole.x,fplan.pole.z),height:fplan.pole.height}:null};
   }
   const v=[-u[1],u[0]],world=(a,bb)=>({x:c.x+a*u[0]+bb*v[0],z:c.z+a*u[1]+bb*v[1]});
   const local=building.local;
   // BİLSEM avlusu: yamaca oyulmuş düz beton meydan (bina tabanı düzeyinde). Duvarlı kenarlarda (batı, güney) düz kalır,
   // açık kenarlarda (open: kuzey, doğu) son 6 m'de araziye bağlanır. heightAt(x,z,base): avlu içinde yükseklik, dışında null.
-  const zone=yardZone(building,data.bahce?.zone),open=data.bahce?.open||[],level=base,BLEND=6;
-  const yard={zone,level,
-    heightAt(x,z,baseFn=ground){const [a,bb]=local(x,z);if(a<zone.a0||a>zone.a1||bb<zone.b0||bb>zone.b1)return null;
-      let t=1;if(open.includes('north'))t=Math.min(t,(bb-zone.b0)/BLEND);if(open.includes('east'))t=Math.min(t,(zone.a1-a)/BLEND);
-      if(open.includes('south'))t=Math.min(t,(zone.b1-bb)/BLEND);if(open.includes('west'))t=Math.min(t,(a-zone.a0)/BLEND);
-      t=Math.max(0,Math.min(1,t));return t>=1?level:level*t+baseFn(x,z)*(1-t)}};
+  const zone=yardZone(building,data.bahce?.zone),level=base;
+  const yard=flatYard(zone,level,data.bahce?.open||[],local,ground);
   const yardGround=(x,z)=>yard.heightAt(x,z)??ground(x,z);
   let kamelya=null;
   if(data.kamelya&&m.kamelya){
@@ -56,7 +64,7 @@ export function bilsemPlacement(data,ground){
   }
   const pole=plan.st.flag?{...world(plan.s*plan.pole.x,plan.pole.z),height:plan.pole.height}:null;
   // three.js: modelin +X ekseni u yönüne (rotation.y = atan2(-uz, ux)); +Z (bina önü) güneye bakar
-  const schools=[{id:'bilsem',building,plan,world,pole,zone,yard:data.bahce||{}},fen].filter(Boolean);
+  const schools=[{id:'bilsem',building,plan,world,pole,zone,yard:{skirt:data.bahce?.open||[],...(data.bahce||{})}},fen].filter(Boolean);
   // istinat duvarları (yerel kutular, çarpışma): iç yüz çizgisinden dışa kalınlık, avlu düzeyinden yükseklik + çit
   const walls=(data.bahce?.walls||[]).map(w=>{const [a0,b0]=w.p0,[a1,b1]=w.p1,[na,nb]=w.out,t=w.t??0.5,fh=w.fence==='tel'?1.9:1.5;
     return {a0:Math.min(a0,a1,a0+na*t,a1+na*t),a1:Math.max(a0,a1,a0+na*t,a1+na*t),b0:Math.min(b0,b1,b0+nb*t,b1+nb*t),b1:Math.max(b0,b1,b0+nb*t,b1+nb*t),top:level+w.h+0.14+fh,name:'istinat duvarı'}});
@@ -64,7 +72,7 @@ export function bilsemPlacement(data,ground){
     boxes:[building,kamelya,fen?.building].filter(Boolean),
     // koruma alanları: her okulun bahçesi/avlusu bütün (Google'ın bina tümseği ve kaymış çatı fotoğrafı içeride kalır)
     keepZones:schools.map(sc=>zoneKeep(sc.zone,sc.world,u)),
-    yard,yardGround,walls,yardObstacles:yardObstacles(data.bahce,world)};
+    yard,yardGround,walls,flatZones:[yard,fen?.flat].filter(Boolean),yardObstacles:yardObstacles(data.bahce,world)};
 }
 
 export async function createBilsemLayer({loader,data,ground,surface=ground,anisotropy=4,place=bilsemPlacement(data,ground)}){

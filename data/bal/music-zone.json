@@ -1,0 +1,13 @@
+{
+  "note": "Konuma göre müzik: işaretlenen noktanın (Dirsek Sokak / Çelebi Sokak köşesi, Zafer Hoca 5 Kasım 2026) çevresinde 'Balıkesir Bengisi' çalar, dışında genel parça. circle: merkez [boylam, enlem], yarıçap ve çıkış payı (m).",
+  "inside": "bengi",
+  "outside": "balikesir",
+  "circle": {
+    "center": [
+      27.89494,
+      39.640445
+    ],
+    "radius": 90,
+    "hysteresis": 20
+  }
+}

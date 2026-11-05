@@ -4,15 +4,45 @@
 dosyasını okuyun (Ankara'dan gelen ilk devir notu; kurallar orada). Yeni oturuma yapıştırılacak başlangıç mesajı:
 `CLAUDE-BALIKESIR-BASLANGIC-MESAJI.txt`.
 
-## Kısa durum (4 Kasım 2026, 22:10)
+## Kısa durum (5 Kasım 2026, 23:15)
 
 - Canlı: https://altieylul-bvlos-balikesir.vercel.app · depo `AnubisZk/altieylul-bvlos-balikesir` (main → Vercel otomatik).
 - Var: GLO-30 arazi, 22 135 OSM kutu bina, Google gerçek şehir (Karma), ArcGIS hava görüntüsü, BİLSEM binası ve
   arkasındaki Altıeylül Fen Lisesi (MEB tip projesi, yordamsal, temsili) + BİLSEM kamelyası (Meshy), BİLSEM avlusu
-  (düz beton meydan, istinat duvarları, fotoğraflara göre) ve Atatürk köşesi, Fen Lisesi beton avlusu, tarihi yapılar (Saat Kulesi, Kuva-yi Milliye Müzesi, Zağnos Paşa Camii,
-  Balıkesir Garı; yordamsal, temsili), kalkış pedi BİLSEM ön bahçesinde, Saat Kulesi çevresinde 6 noktalı tur,
+  (düz beton meydan, istinat duvarları, fotoğraflara göre) ve Atatürk köşesi, Fen Lisesi düz beton avlusu, tarihi
+  yapılar (Saat Kulesi, Kuva-yi Milliye Müzesi, Zağnos Paşa Camii, Balıkesir Garı, Atatürk Stadyumu; yordamsal, temsili),
+  konuma bağlı "Balıkesir Bengisi", kalkış pedi BİLSEM ön bahçesinde, Saat Kulesi çevresinde 6 noktalı tur,
   Balıkesir müziği.
 - Açık işler: aşağıda "Sıradaki adımlar".
+
+## 5 Kasım 2026, 23:15 · Fen avlusu, gar fotoğrafa göre, Atatürk Stadyumu, Balıkesir Bengisi
+
+- **Fen Lisesi avlusu**: canlıda (Karma) avlu levhası güneybatı kenarında havada kalıyordu (DEM'i izliyordu, Google zemini
+  daha alçak). Artık BİLSEM gibi düz (Fen bina tabanı düzeyi, `bilsem.js flatYard`), dört kenarda son 6 m'de araziye
+  bağlanır; kenarlarda 4 m'lik **etek** (`createYard spec.skirt`) var, Google zemini alçaksa kenar boşluk değil düz bir
+  set gibi görünür. Etek bütün açık avlu kenarlarında (BİLSEM kuzey/doğu, tarihi yapılar) var. Düz alanlar genelleşti:
+  `city-world.js` fizik zemini ve kaplamalar `bilsemPlace.flatZones` + `heritagePlace.flatZones` (stadyum) üzerinden.
+- **Balıkesir Garı** Zafer Hoca'nın fotoğraflarına göre yeniden: gri-kahve kaba sıva (canvas dokusu), köşe taşları, kat
+  silmesi ve söveler kırmızımsı kahve taş; boyuna beşik çatı (uçlarda yan alınlık), ortada öne/arkaya bakan dik alınlık
+  (TCDD yazısı, temsili yuvarlak amblem, iki dar kemerli pencere, katlar arasında "BALIKESİR GAR"); zemin katta yuvarlak
+  kemerli kapı ve pencereler, üst katta basık kemerli pencereler; beyaz ahşap saçak tahtaları ve alın tahtaları, iki baca;
+  tek katlı kanatlarda yuvarlak kemerli açıklıklar ve korkuluk duvarı; önde Türk bayrağı ve beyaz kurum bayrağı (amblemsiz).
+  **Yan alınlıklar iki uçta da simetrik** (Zafer Hoca: "bu detay çok önemli, iki tarafta da"): saçak altını izleyen
+  basamaklı taş friz, beyaz ahşap saçak altı, kulaklı taş lentolu iki küçük pencere, "BALIKESSIR" + Osmanlıca yazıtlı
+  levha (Zafer Hoca'nın fotoğrafından kırpılıp perspektifi düzeltilmiş doku: `models/gar-levha.jpg`, derlemeye kopyalanır),
+  altında kilit taşlı yuvarlak kemerli pencere.
+- **Atatürk Stadyumu** (`tarihi-yapilar.json → stadyum`, tip `stadyum`): OSM sahası (106.7 × 65.6 m, eksen 165°) merkez ve
+  eksen; OSM stadyum alanı (225 × 150 m) ve iki tribün çatısı. Çimen saha (biçme izleri, çizgiler, kaleler), 8 kulvarlı
+  kırmızı pist (standart 400 m), 22 sıralı gri tribün (merdiven aralıkları), dış duvarda turuncu bant, batıda arkasında
+  bina olan kapalı ana tribün, doğuda dar çatılı tribün (beyaz çatılar), dört ışık kulesi. Zemin düz (stadyum zemini),
+  koruma alanı (`MAX_KEEP` 8 → 10), OSM kutuları (stadyum alanı 10 m'lik dev kutu olarak çiziliyordu, çatılar) ayıklanır,
+  tribün profiliyle çarpışma. Yapı inceleme menüsünde "Atatürk Stadyumu".
+- **Balıkesir Bengisi** (Çetin Akdeniz; Zafer Hoca'nın gönderdiği mp3, `music/balikesir-bengisi.mp3`): işaretlenen noktanın
+  (Dirsek Sokak / Çelebi Sokak köşesi, 39.640445, 27.894940) 90 m çevresinde çalar, 110 m dışına çıkınca genel parçaya
+  döner (`data/bal/music-zone.json`, `music-zone.js` çember bölge + çıkış payı). Kayıt üçüncü taraf eseri: canlı sitede
+  yayın izni hak sahibinden teyit edilmeli (ASSETS-LICENSE.md). Nokta herkese açık depoda görünür.
+- `npm test` 89/89 (yeni: stadyum yeri/profili/OSM ayıklama/düz zemin; çember müzik bölgesi). Headless'ta gar (iki uç),
+  stadyum ve Fen avlusu kontrol edildi.
 
 ## 4 Kasım 2026, 22:10 · Merdiven soldan kısaldı, Atatürk köşesi yeni uca
 

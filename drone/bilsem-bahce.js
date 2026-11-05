@@ -64,15 +64,25 @@ export function createYard({kind,zone,spec={},world,center,yaw,surface,inBuildin
   const cls=(a,b)=>{if(inBuilding(a,b))return null;if(kind==='avlu')return 'pave';
     if(spec.lawn)return spec.lawn.some(r=>inR(r,a,b))?'lawn':'pave';
     return plaza.some(r=>inR(r,a,b))?'pave':'lawn'};
-  const na=Math.ceil(zone.a1-zone.a0),nb=Math.ceil(zone.b1-zone.b0),lift=0.04;
+  const cs=spec.cell||1,na=Math.ceil((zone.a1-zone.a0)/cs),nb=Math.ceil((zone.b1-zone.b0)/cs),lift=0.04;
+  const A=i=>Math.min(zone.a0+i*cs,zone.a1),Bv=j=>Math.min(zone.b0+j*cs,zone.b1);
   const H=new Float32Array((na+1)*(nb+1));
-  for(let j=0;j<=nb;j++)for(let i=0;i<=na;i++)H[j*(na+1)+i]=ground(zone.a0+i,zone.b0+j)+lift;
-  const buf={pave:[],lawn:[]};
+  for(let j=0;j<=nb;j++)for(let i=0;i<=na;i++)H[j*(na+1)+i]=ground(A(i),Bv(j))+lift;
+  const buf={pave:[],lawn:[],skirt:[]};
   for(let j=0;j<nb;j++)for(let i=0;i<na;i++){
-    const a=zone.a0+i,b=zone.b0+j,k=cls(a+0.5,b+0.5);if(!k)continue;
-    const v=(di,dj)=>[a+di,H[(j+dj)*(na+1)+i+di],b+dj];
+    const k=cls((A(i)+A(i+1))/2,(Bv(j)+Bv(j+1))/2);if(!k)continue;
+    const v=(di,dj)=>[A(i+di),H[(j+dj)*(na+1)+i+di],Bv(j+dj)];
     buf[k].push(...v(0,0),...v(0,1),...v(1,0),...v(0,1),...v(1,1),...v(1,0));
   }
+  // etek: açık kenarlarda kaplamanın kenarından 4 m aşağı düşey şerit (Google zemini alçaksa kenar havada kalmasın)
+  const skirt=(pts)=>{for(let n=0;n<pts.length-1;n++){const [a0,h0,b0]=pts[n],[a1,h1,b1]=pts[n+1];
+    buf.skirt.push(a0,h0,b0,a1,h1,b1,a1,h1-4,b1,a0,h0,b0,a1,h1-4,b1,a0,h0-4,b0)}};
+  const side=(name,list)=>{if((spec.skirt||[]).includes(name))skirt(list)};
+  side('north',Array.from({length:na+1},(_,i)=>[A(na-i),H[na-i],Bv(0)]));
+  side('south',Array.from({length:na+1},(_,i)=>[A(i),H[nb*(na+1)+i],Bv(nb)]));
+  side('west',Array.from({length:nb+1},(_,j)=>[A(0),H[j*(na+1)],Bv(j)]));
+  side('east',Array.from({length:nb+1},(_,j)=>[A(na),H[(nb-j)*(na+1)+na],Bv(nb-j)]));
+  mats.skirt=new T.MeshStandardMaterial({color:kind==='avlu'?'#8f8a80':'#857c68',roughness:0.95,side:T.DoubleSide});mats.skirt.name='okul-zemin-etek';mats.skirt.userData.tile=4;
   for(const [k,arr] of Object.entries(buf)){
     if(!arr.length)continue;
     const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(arr,3));

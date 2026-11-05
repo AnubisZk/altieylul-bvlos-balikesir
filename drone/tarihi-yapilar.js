@@ -75,14 +75,30 @@ function mosqueLayout(def,ga){
 function stationLayout(def,ga){
   const hw=def.width/2,hd=def.depth/2,g=[[-hw,-hd],[hw,-hd],[-hw,hd],[hw,hd]].map(([a,b])=>ga(a,b));
   const PL=Math.max(...g)+0.55,low=Math.min(...g,ga(0,-12),ga(-20,0),ga(20,0))-2,E=PL+8.8,W=[12,20.6,-4.3,4.5];
-  return {hw,hd,PL,low,E,W,target:[0,0],pole:[-14.5,8.6],
-    colliders:[box(-hw,hw,-hd,hd,low,E+0.5),box(-5.6,5.6,-hd-0.7,hd+0.7,low,E+4.3),box(-hw,hw,-hd+1,hd-1,E,E+2.3),
+  const K=0.62,KC=0.86,ridge=E+(hd+0.6)*K,ridgeC=E+5.75*KC;                    // ana beşik çatı ve orta alınlık çatısı
+  return {hw,hd,PL,low,E,W,K,KC,ridge,ridgeC,target:[0,0],poles:[[-8.4,8.9],[-6.9,8.9]],
+    colliders:[box(-hw-0.6,hw+0.6,-hd-0.6,hd+0.6,low,E+0.3),box(-hw-0.6,hw+0.6,-hd/2,hd/2,E,E+(hd/2+0.6)*K+0.3),box(-hw-0.6,hw+0.6,-1.2,1.2,E,ridge+0.2),
+      box(-5.75,5.75,-hd-1.3,hd+1.3,low,E+0.6),box(-2.9,2.9,-hd-1.3,hd+1.3,E,E+2.9*KC+0.3),box(-1,1,-hd-1.3,hd+1.3,E,ridgeC+0.2),
       box(W[0],W[1],W[2],W[3],low,PL+5.6),box(-W[1],-W[0],W[2],W[3],low,PL+5.6),{...box(-24.3,24.3,-11.7,-hd,PL+3.65,PL+4.6),bottom:PL+3.65},
-      ...[-21,-15,-9,-3,3,9,15,21].map(a=>cyl(a,-10.8,0.15,low,PL+4)),cyl(-14.5,8.6,0.12,low,ga(-14.5,8.6)+10.2)],
+      ...[-21,-15,-9,-3,3,9,15,21].map(a=>cyl(a,-10.8,0.15,low,PL+4)),cyl(-8.4,8.9,0.12,low,ga(-8.4,8.9)+10.2),cyl(-6.9,8.9,0.12,low,ga(-6.9,8.9)+9.2)],
     zone:{a0:-24.5,a1:24.5,b0:-12.5,b1:10.5},remove:[[-hw-0.2,hw+0.2,-hd-0.2,hd+0.2],[W[0]-0.3,W[1]+0.5,W[2]-0.5,W[3]+0.5],[-W[1]-0.5,-W[0]+0.3,W[2]-0.5,W[3]+0.5]],
     solid:[[-hw,hw,-hd,hd],[-5.2,5.2,-hd-0.6,hd+0.6],W,[-W[1],-W[0],W[2],W[3]]]};
 }
-const LAYOUT={'saat-kulesi':towerLayout,muze:museumLayout,cami:mosqueLayout,gar:stationLayout};
+
+/** Stadyum: kapsül (pist) çizgisi: çekirdek doğru parçası a ∈ [−S, S], b = 0; yarıçap r. */
+export const capsuleDist=(a,b,S)=>Math.hypot(Math.max(Math.abs(a)-S,0),b);
+function stadiumLayout(def){
+  const S=def.straight??42.2,Rin=36.5,Rtr=Rin+8*1.22,R0=Rtr+2.7,R1=def.standOuter??68,rows=def.rows??22,rise=0.42,front=1.3;
+  const top=front+rows*rise,mainA=[-33,38],eastA=[-46,49];
+  const lights=[[1,1],[1,-1],[-1,1],[-1,-1]].map(([sa,sb])=>[sa*(S+(R1+5)*Math.SQRT1_2),sb*(R1+5)*Math.SQRT1_2]);
+  return {S,Rin,Rtr,R0,R1,rows,rise,front,top,mainA,eastA,lights,target:[0,0],flat:true,
+    inside:(a,b)=>capsuleDist(a,b,S)<R1+0.6||(a>mainA[0]&&a<mainA[1]&&b<-R1+1&&b>-81),
+    colliders:[{k:'stand',S,r0:R0,r1:R1,y0:front,y1:top},{...box(mainA[0],mainA[1],-80,-R1+0.5,0,top+3.5)},
+      {...box(mainA[0],mainA[1],-80,-50,top+5.5,top+7.2),bottom:top+5.5},{...box(eastA[0],eastA[1],R1-10,R1+1.4,top+2.4,top+3.4),bottom:top+2.4},
+      ...lights.map(([a,b])=>cyl(a,b,0.8,0,40)),...[-1,1].map(sa=>({...box(sa*52.5-0.1,sa*52.5+0.1,-3.8,3.8,0,2.5)}))],
+    zone:{a0:-119,a1:119,b0:-86,b1:76},remove:[[-114,114,-82,71]],solid:[]};
+}
+const LAYOUT={'saat-kulesi':towerLayout,muze:museumLayout,cami:mosqueLayout,gar:stationLayout,stadyum:stadiumLayout};
 
 /** Cephe döndürmesi: i = 0 ön (+b), 1 (+a), 2 arka (−b), 3 (−a). s/d aralığı → (a,b) dikdörtgeni [a0,a1,b0,b1]. */
 function rot(i,[s0,s1],[d0,d1]){
@@ -92,6 +108,8 @@ function rot(i,[s0,s1],[d0,d1]){
 const toAB=(i,s,dd)=>i===0?[s,dd]:i===1?[dd,-s]:i===2?[-s,-dd]:[-dd,s];
 
 function colTop(c,a,b,r){
+  if(c.k==='stand'){const d=capsuleDist(a,b,c.S);if(d<c.r0-r||d>c.r1+1+r)return -Infinity;
+    return d>=c.r1?c.y1+1.2:c.y0+Math.max(0,Math.min(1,(d+r-c.r0)/(c.r1-c.r0)))*(c.y1-c.y0)}
   if(c.k==='box')return a>=c.a0-r&&a<=c.a1+r&&b>=c.b0-r&&b<=c.b1+r?c.y1:-Infinity;
   const d=Math.hypot(a-c.a,b-c.b);
   if(c.k==='cyl')return d<=c.r+r?c.y1:-Infinity;
@@ -108,16 +126,20 @@ export function heritagePlacement(data,ground){
     const lay=L(def,ga),t=f.world(...lay.target);
     structures.push({id,def,name:def.name,...f,y0,ga,lay,keep:zoneKeep(lay.zone,f.world,f.u),target:{x:t.x,z:t.z}});
   }
+  // düz zeminler (stadyum): alan içinde yapı tabanı düzeyi, kenarda son 8 m'de araziye bağlanır
+  const flatZones=structures.filter(s=>s.lay.flat).map(s=>{const z=s.lay.zone,B=8;return {id:s.id,
+    heightAt(x,zz,baseFn=ground){const [a,b]=s.local(x,zz);if(a<z.a0||a>z.a1||b<z.b0||b>z.b1)return null;
+      const t=Math.max(0,Math.min(1,Math.min(a-z.a0,z.a1-a,b-z.b0,z.b1-b)/B));return t>=1?s.y0:s.y0*t+baseFn(x,zz)*(1-t)}}});
   const inR=(r,a,b)=>a>=r[0]&&a<=r[1]&&b>=r[2]&&b<=r[3];
-  return {structures,keepZones:structures.map(s=>s.keep),
+  return {structures,flatZones,keepZones:structures.map(s=>s.keep),
     /** OSM kutusu bir yapının yerine mi düşüyor (merkezi ya da bir köşesi ayıklama dikdörtgeninde) */
     removes(ring){
       const n=ring.length,cx=ring.reduce((s,p)=>s+p[0],0)/n,cz=ring.reduce((s,p)=>s+p[1],0)/n;
       return structures.some(s=>s.lay.remove.some(r=>inR(r,...s.local(cx,cz))||ring.some(([x,z])=>inR(r,...s.local(x,z)))));
     },
-    heightAt(x,z){let h=-Infinity;for(const s of structures){const [a,b]=s.local(x,z);if(Math.abs(a)>60||Math.abs(b)>60)continue;
+    heightAt(x,z){let h=-Infinity;for(const s of structures){const [a,b]=s.local(x,z);const Z=s.lay.zone;if(a<Z.a0-5||a>Z.a1+5||b<Z.b0-5||b>Z.b1+5)continue;
       for(const c of s.lay.colliders)h=Math.max(h,s.y0+colTop(c,a,b,0))}return h},
-    hitTest(x,y,z,r=0){for(const s of structures){const [a,b]=s.local(x,z);if(Math.abs(a)>60||Math.abs(b)>60)continue;
+    hitTest(x,y,z,r=0){for(const s of structures){const [a,b]=s.local(x,z);const Z=s.lay.zone;if(a<Z.a0-5||a>Z.a1+5||b<Z.b0-5||b>Z.b1+5)continue;
       for(const c of s.lay.colliders){const top=colTop(c,a,b,r);if(top===-Infinity)continue;const bot=s.y0+(c.bottom??c.y0??-5);
         if(y-r<=s.y0+top&&y+r>=bot)return {type:'building',id:s.id,name:s.name}}}return null},
   };
@@ -186,6 +208,7 @@ function bake(P,M,name){
     const m=M[k];if(!m){console.warn('[tarihi] malzeme yok',k);continue}
     for(const x of list){if(!x.attributes.uv)x.setAttribute('uv',new T.BufferAttribute(new Float32Array(x.attributes.position.count*2),2));if(!x.attributes.normal)x.computeVertexNormals()}
     const geo=mergeGeometries(list,false);list.forEach(x=>x.dispose());if(m.userData.uv)metricUV(geo,m.userData.uv);
+    if(m.userData.uv===0){const uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)/15)}
     const mesh=new T.Mesh(geo,m);mesh.name=name+'-'+k;mesh.castShadow=!m.transparent;mesh.receiveShadow=true;g.add(mesh);
   }
   return g;
@@ -202,6 +225,15 @@ function drawAshlar(g,S){   // 1.8 m'de 6 sıra kesme taş
   g.fillStyle=shade(200);g.fillRect(0,0,S,S);const rows=6,rh=S/rows;
   for(let r=0;r<rows;r++){let x=-(r%2)*S/6;while(x<S){const w=S*(0.2+rnd()*0.22),v=205+rnd()*38;g.fillStyle=shade(v);g.fillRect(x+1.5,r*rh+1.5,w-3,rh-3);
     for(let i=0;i<14;i++){g.fillStyle=`rgba(0,0,0,${0.03+rnd()*0.05})`;g.fillRect(x+rnd()*w,r*rh+rnd()*rh,2+rnd()*5,1+rnd()*3)}x+=w}}
+}
+function drawStand(g,W,H){   // tribün basamağı: u çevre boyunca (15 m'de bir merdiven aralığı), v basamak derinliği
+  g.fillStyle='#a2a3a0';g.fillRect(0,0,W,H);for(let i=0;i<300;i++){g.fillStyle=`rgba(${110+rnd()*60|0},${110+rnd()*60|0},${110+rnd()*60|0},0.25)`;g.fillRect(rnd()*W,rnd()*H,2,2)}
+  g.fillStyle='#d6d5d0';g.fillRect(0,0,W*0.07,H);g.fillStyle='rgba(60,60,60,0.25)';g.fillRect(0,H-3,W,3);
+}
+function drawStucco(g,S){   // 3 m'de kaba sıva: gri-kahve, ince lekeler
+  g.fillStyle='#a69b8f';g.fillRect(0,0,S,S);
+  for(let i=0;i<5200;i++){const v=rnd();g.fillStyle=`rgba(${(120+v*70)|0},${(110+v*64)|0},${(98+v*58)|0},0.22)`;g.fillRect(rnd()*S,rnd()*S,1+rnd()*3,1+rnd()*3)}
+  for(let i=0;i<14;i++){const x=rnd()*S,y=rnd()*S,r=20+rnd()*60,gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba(90,80,70,0.12)');gr.addColorStop(1,'rgba(90,80,70,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,2*r,2*r)}
 }
 function drawRubble(g,S){   // 2 m'de moloz taş duvar
   g.fillStyle=shade(120);g.fillRect(0,0,S,S);
@@ -237,11 +269,19 @@ function textTexture(text,{w=1024,h=128,bg=null,fg='#ffffff',font='bold 80px "Se
 function materials(anisotropy){
   const A=canvasTex(256,drawAshlar,anisotropy),R=canvasTex(256,drawRubble,anisotropy),B=canvasTex(256,drawBrick,anisotropy),
     W=canvasTex(256,drawTimber,anisotropy),L=canvasTex(256,drawLattice,anisotropy);
-  const M=(name,o,uv=0)=>{const m=new T.MeshStandardMaterial(o);m.name='tarihi-'+name;if(uv)m.userData.uv=uv;return m};
+  const M=(name,o,uv)=>{const m=new T.MeshStandardMaterial(o);m.name='tarihi-'+name;if(uv!=null)m.userData.uv=uv;return m};
   return {
     towerStone:M('kule-tasi',{map:A,color:'#f3e3c6',roughness:0.9},1.8),whiteStone:M('beyaz-tas',{map:A,color:'#f4efe6',roughness:0.85},1.8),
     gateStone:M('kapi-tasi',{map:A,color:'#dcc2b0',roughness:0.88},1.8),stationStone:M('gar-tasi',{map:A,color:'#d3c4ab',roughness:0.92},1.6),
-    stationLight:M('gar-kose',{map:A,color:'#e7dccb',roughness:0.88},1.6),rubble:M('moloz',{map:R,color:'#d2cbc0',roughness:0.95},2),
+    stationLight:M('gar-kose',{map:A,color:'#e7dccb',roughness:0.88},1.6),
+    stucco:M('gar-siva',{map:canvasTex(256,drawStucco,anisotropy),color:'#ffffff',roughness:0.95},3),stationTrim:M('gar-sove',{map:A,color:'#9a7a6a',roughness:0.85},1.6),
+    whiteWood:M('gar-sacak',{color:'#f1efe9',roughness:0.7}),
+    track:M('pist',{color:'#b8553e',roughness:0.85}),laneLine:M('kulvar',{color:'#f2efe9',roughness:0.6}),apron:M('pist-cevresi',{color:'#5b6a52',roughness:0.95}),
+    tread:M('tribun',{map:canvasTex(128,drawStand,anisotropy,{w:256,h:32}),color:'#ffffff',roughness:0.9},0),riser:M('tribun-riht',{color:'#c9c8c3',roughness:0.85}),
+    standWall:M('tribun-duvar',{color:'#e4e3df',roughness:0.85}),outerWall:M('dis-duvar',{color:'#d9d6cf',roughness:0.9}),orange:M('turuncu-bant',{color:'#d8622e',roughness:0.7}),
+    roofWhite:M('beyaz-cati',{color:'#f3f4f4',roughness:0.5,metalness:0.2}),lampPoleS:M('isik-kulesi',{color:'#b9bec2',roughness:0.4,metalness:0.6}),
+    floodlight:M('projektor',{color:'#fbfbf2',roughness:0.3,emissive:'#6a6a55'}),goal:M('kale',{color:'#f6f6f6',roughness:0.4}),
+    net:M('ag',{color:'#ffffff',roughness:0.9,transparent:true,opacity:0.18,depthWrite:false}),rubble:M('moloz',{map:R,color:'#d2cbc0',roughness:0.95},2),
     brick:M('tugla',{map:B,color:'#ffffff',roughness:0.9},1.2),timber:M('ahsap-kaplama',{map:W,color:'#ffffff',roughness:0.85},2),
     lattice:M('kafes',{map:L,roughness:0.6}),plaster:M('siva',{color:'#f3f0ea',roughness:0.92}),
     lead:M('kursun',{color:'#a5abb0',roughness:0.42,metalness:0.6}),leadDark:M('kursun-koyu',{color:'#6d757b',roughness:0.5,metalness:0.5}),
@@ -479,41 +519,76 @@ function buildMosque(L,ctx){
 }
 
 // ---------------------------------------------------------------- Balıkesir Garı
+// Zafer Hoca'nın fotoğrafı (5 Kasım): iki katlı ana bina gri-kahve kaba sıvalı, köşe taşları, kat silmesi ve pencere
+// söveleri kırmızımsı kahve kesme taş; boyuna beşik çatı (uçlarda yan alınlık, beyaz ahşap saçak tahtaları), ortada öne ve
+// arkaya bakan alınlıklı çıkma ("TCDD", iki dar pencere, katlar arasında "BALIKESİR GAR"); zemin katta yuvarlak kemerli
+// açıklıklar, üst katta basık kemerli pencereler; sol (−a) yan alınlıkta "BALIKESİR" levhası; iki yanda tek katlı, düz
+// damlı, korkuluk duvarlı kanatlar; önde iki bayrak; arkada peron ve sundurma.
 function buildStation(L,ctx){
-  const K=kit(),M=ctx.M,{hw,hd,PL,low,E,W}=L,group=new T.Group();
-  K.bx('stationStone',-hw-0.1,hw+0.1,low,PL,-hd-0.1,hd+0.1);K.bx('stationStone',-hw,hw,PL,E,-hd,hd);K.bx('stationStone',-5.2,5.2,low,E,-hd-0.6,hd+0.6);
-  const bands=(F,s0,s1)=>{F.bx('stationLight',s0-0.05,s1+0.05,PL+4.6,PL+4.85,0,0.12);F.bx('stationLight',s0-0.1,s1+0.1,E,E+0.25,0,0.3);F.bx('stationLight',s0-0.15,s1+0.15,E+0.25,E+0.42,0,0.45)};
+  const K=kit(),M=ctx.M,{hw,hd,PL,low,E,W,K:k,KC,ridge,ridgeC}=L,group=new T.Group();
+  const stone='stationTrim',wall='stucco';
+  K.bx(stone,-hw-0.12,hw+0.12,low,PL,-hd-0.12,hd+0.12);K.bx(wall,-hw,hw,PL,E,-hd,hd);K.bx(wall,-5.2,5.2,low,E,-hd-0.6,hd+0.6);
+  const course=(F,s0,s1,y,dd=0.12)=>F.bx(stone,s0,s1,y,y+0.22,0,dd);
+  const winUp=(F,s)=>windowOn(F,{s,y:PL+5.5,w:1.15,h:2.1,arch:'segment',glass:'glass',frame:stone,ft:0.24,fd:0.13,mull:1,transom:true,sill:stone});
+  const winDown=(F,s,door=false)=>windowOn(F,{s,y:door?PL:PL+1.0,w:door?1.5:1.25,h:door?3.2:2.5,arch:'round',glass:door?'woodDoor':'glass',frame:stone,ft:0.28,fd:0.14,mull:1,transom:!door,sill:door?null:stone});
   for(const i of [0,2]){
-    const F=K.face(i,hd),C=K.face(i,hd+0.6);bands(F,-hw,-5.2);bands(F,5.2,hw);
-    C.bx('stationLight',-5.25,5.25,PL+4.6,PL+4.85,0,0.12);C.bx('stationLight',-5.3,5.3,E,E+0.3,0,0.3);
-    for(const s of [-hw+0.45,hw-0.45])quoins(F,'stationLight',s,PL,E,0.9,1.3,0.07,0.38);for(const s of [-4.85,4.85])quoins(C,'stationLight',s,PL,E,0.7,1.05,0.07,0.38);
-    // orta blok: üç kemerli kapı (ön) ya da kapı ve pencereler (peron), yazı, üst kat pencereleri, alınlık
-    for(const s of [-2.55,0,2.55]){windowOn(C,{s,y:PL,w:1.55,h:3.3,glass:'glass',frame:'stationLight',ft:0.3,fd:0.16,mull:1,transom:true});C.bx('stationLight',s-0.22,s+0.22,PL+3.3,PL+3.75,0,0.2)}
-    for(const s of [-2.55,0,2.55])windowOn(C,{s,y:PL+5.6,w:1.15,h:2.0,arch:'segment',glass:'glass',frame:'stationLight',ft:0.22,fd:0.14,mull:1,transom:true,sill:'stationLight'});
-    for(const s of [-10.1,-7.4,7.4,10.1]){windowOn(F,{s,y:PL+1.2,w:1.25,h:2.4,arch:'segment',glass:'glass',frame:'stationLight',ft:0.24,fd:0.14,mull:1,transom:true,sill:'stationLight'});
-      windowOn(F,{s,y:PL+5.6,w:1.15,h:2.0,arch:'segment',glass:'glass',frame:'stationLight',ft:0.22,fd:0.14,mull:1,transom:true,sill:'stationLight'})}
-    const ped=new T.Shape();ped.moveTo(-5.4,0);ped.lineTo(5.4,0);ped.lineTo(0,3.8);ped.lineTo(-5.4,0);
-    C.geo('stationStone',new T.ExtrudeGeometry(ped,{depth:0.5,bevelEnabled:false}),0,E+0.3,-0.5);
-    for(const sg of [-1,1]){const len=Math.hypot(5.6,3.92),g=new T.BoxGeometry(len,0.22,0.75).rotateZ(-sg*Math.atan2(3.92,5.6));C.geo('stationLight',g,sg*2.8,E+0.3+1.96+0.08,-0.15);
-      for(let t=0.08;t<0.95;t+=0.07){const s=sg*5.4*(1-t),y=E+0.3+3.8*t-0.18;C.bx('stationLight',s-0.1,s+0.1,y-0.12,y,0,0.1)}}
-    for(const s of [-0.5,0.5])windowOn(C,{s,y:E+1.45,w:0.5,h:1.0,glass:'glass',frame:'stationLight',ft:0.1,fd:0.08});
-    const txt=new T.Mesh(new T.PlaneGeometry(i===0?5.6:4.0,i===0?0.62:0.5),i===0?ctx.garText:ctx.balText);const [ta,tb]=C.ab(0,0.13);txt.position.set(ta,PL+4.05,tb);txt.rotation.y=i*Math.PI/2;group.add(txt);
-    const tc=new T.Mesh(new T.PlaneGeometry(1.7,0.52),i===0?ctx.tcddText:ctx.ottoText);const [ca,cb]=C.ab(0,0.02);tc.position.set(ca,E+0.85,cb);tc.rotation.y=i*Math.PI/2;group.add(tc);
-    if(i===0){C.geo('frame',new T.CircleGeometry(0.34,20),0,E+3.0,0.02);C.geo('plaque',new T.CircleGeometry(0.26,20),0,E+3.0,0.03)}
+    const F=K.face(i,hd),C=K.face(i,hd+0.6);
+    course(F,-hw,-5.2,PL+4.55);course(F,5.2,hw,PL+4.55);course(C,-5.2,5.2,PL+4.55,0.1);
+    for(const s of [-hw+0.45,hw-0.45])quoins(F,stone,s,PL,E,0.85,1.25,0.08,0.4);for(const s of [-4.9,4.9])quoins(C,stone,s,PL,E,0.7,1.05,0.08,0.4);
+    for(const s of [-2.6,0,2.6]){winDown(C,s,i===0);winUp(C,s)}
+    for(const s of [-10.2,-7.4,7.4,10.2]){winDown(F,s);winUp(F,s)}
+    // alınlık duvarı (çıkmanın önü), içinde iki dar pencere; ön alınlıkta TCDD, arkada BALIKESİR levhası
+    const ped=new T.Shape();ped.moveTo(-5.2,0);ped.lineTo(5.2,0);ped.lineTo(0,5.2*KC);ped.lineTo(-5.2,0);
+    C.geo(wall,new T.ExtrudeGeometry(ped,{depth:0.4,bevelEnabled:false}),0,E,-0.4);
+    for(const s of [-0.55,0.55])windowOn(C,{s,y:E+1.1,w:0.5,h:1.15,arch:'round',glass:'glass',frame:stone,ft:0.12,fd:0.08});
+    const txt=new T.Mesh(new T.PlaneGeometry(i===0?5.6:4.0,i===0?0.62:0.5),i===0?ctx.garText:ctx.balText);const [ta,tb]=C.ab(0,0.13);txt.position.set(ta,PL+4.1,tb);txt.rotation.y=i*Math.PI/2;group.add(txt);
+    if(i===0){const tc=new T.Mesh(new T.PlaneGeometry(1.8,0.55),ctx.tcddText);const [ca,cb]=C.ab(0,0.02);tc.position.set(ca,E+0.55,cb);tc.rotation.y=0;group.add(tc);
+      C.geo('frame',new T.CircleGeometry(0.42,24),0,E+3.0,0.02);C.geo('plaque',new T.CircleGeometry(0.34,24),0,E+3.0,0.03)}   // temsili amblem
   }
-  for(const i of [1,3]){const F=K.face(i,hw);bands(F,-hd,hd);for(const s of [-3.2,3.2]){windowOn(F,{s,y:PL+1.2,w:1.25,h:2.4,arch:'segment',glass:'glass',frame:'stationLight',ft:0.24,fd:0.14,mull:1,transom:true});
-    windowOn(F,{s,y:PL+5.6,w:1.15,h:2.0,arch:'segment',glass:'glass',frame:'stationLight',ft:0.22,fd:0.14,mull:1,transom:true})}}
-  // çatılar: ortada alınlıklı beşik, yanlarda kırma; bacalar
-  K.put('tileRed',gableRoof(-5.75,5.75,-hd-0.95,hd+0.95,E+0.3,3.8/5.4,2.2));
-  for(const sg of [-1,1]){const x0=sg>0?5.0:-hw-0.5,x1=sg>0?hw+0.5:-5.0;K.put('tileRed',hipRoof({x0,x1,z0:-hd-0.5,z1:hd+0.5,y:E+0.42,k:0.55},2.2));
-    for(const b of [-3.4,3.4]){const a=sg*8.5;K.bx('stationLight',a-0.3,a+0.3,E+1.2,E+3.6,b-0.3,b+0.3);K.bx('stationStone',a-0.38,a+0.38,E+3.6,E+3.8,b-0.38,b+0.38)}}
-  // tek katlı kanatlar
+  // yan alınlıklar (iki uçta da, Zafer Hoca'nın yakın fotoğrafı): saçak altını izleyen basamaklı taş friz, beyaz ahşap
+  // saçak altı, taş lentolu iki küçük pencere, "BALIKESSIR" + Osmanlıca yazıtlı levha (fotoğraftan doku), altında kilit
+  // taşlı yuvarlak kemerli pencere; zemin katın ortasını tek katlı kanat örter
+  for(const i of [1,3]){const F=K.face(i,hw);course(F,-hd,hd,PL+4.55);
+    for(const s of [-hd+0.45,hd-0.45])quoins(F,stone,s,PL,E,0.85,1.25,0.08,0.4);
+    for(const s of [-5.6,5.6])windowOn(F,{s,y:PL+1.0,w:1.0,h:2.3,arch:'round',glass:'glass',frame:stone,ft:0.24,fd:0.13,mull:1,transom:true,sill:stone});
+    windowOn(F,{s:0,y:PL+5.45,w:1.2,h:2.45,arch:'round',glass:'woodDoor',frame:stone,ft:0.3,fd:0.14,mull:1,transom:true,sill:stone});
+    F.bx(stone,-0.2,0.2,PL+7.55,PL+8.05,0,0.2);                                                   // kilit taşı
+    F.bx(stone,-1.15,1.15,PL+8.02,PL+8.14,0,0.16);
+    const tri=new T.Shape();tri.moveTo(-hd,0);tri.lineTo(hd,0);tri.lineTo(0,hd*k);tri.lineTo(-hd,0);
+    F.geo(wall,new T.ExtrudeGeometry(tri,{depth:0.4,bevelEnabled:false}),0,E,-0.4);
+    // levha: taş çerçeve + fotoğraf dokusu
+    F.bx(stone,-2.35,2.35,E+0.35,E+1.75,0,0.08);
+    const pl=new T.Mesh(new T.PlaneGeometry(4.3,1.25),ctx.garPlaque);const [pa,pb]=F.ab(0,0.09);pl.position.set(pa,E+1.05,pb);pl.rotation.y=i===1?Math.PI/2:-Math.PI/2;group.add(pl);
+    // iki küçük pencere ve kulaklı taş lentoları
+    for(const s of [-0.95,0.95]){windowOn(F,{s,y:E+2.25,w:0.55,h:1.05,arch:'flat',glass:'glass',frame:stone,ft:0.1,fd:0.08,sill:stone});
+      F.bx(stone,s-0.55,s+0.55,E+3.32,E+3.62,0,0.12);F.bx(stone,s-0.45,s+0.45,E+3.62,E+3.72,0,0.1)}
+    // basamaklı friz: eğim boyunca yatay taş basamaklar (saçağın hemen altında)
+    const ds=0.62;
+    for(const sg of [-1,1])for(let t=0.25;t<hd-0.2;t+=ds){const s0=sg*(hd-t),s1=sg*(hd-t-ds),yTop=E+(t)*k-0.1;
+      F.bx(stone,Math.min(s0,s1),Math.max(s0,s1),yTop-0.42,yTop,0,0.09)}
+  }
+  // çatılar: boyuna beşik (uçlarda alınlık), ortada dik beşik; beyaz saçak tahtaları ve süslü alın tahtaları; bacalar
+  K.put('tileRed',gableRoofA(-hw-0.7,hw+0.7,-hd-0.6,hd+0.6,E,k,2.2));
+  K.put('tileRed',gableRoof(-5.75,5.75,-hd-1.3,hd+1.3,E+0.02,KC,2.2));
+  const barge=(p,q)=>{const v=new T.Vector3(q[0]-p[0],q[1]-p[1],q[2]-p[2]),len=v.length(),g=new T.BoxGeometry(0.06,0.32,len);
+    g.lookAt(v);K.put('whiteWood',g.translate((p[0]+q[0])/2,(p[1]+q[1])/2-0.16,(p[2]+q[2])/2));
+    for(let t=0.06;t<0.96;t+=0.06){const x=p[0]+(q[0]-p[0])*t,y=p[1]+(q[1]-p[1])*t,z=p[2]+(q[2]-p[2])*t;K.bx('whiteWood',x-0.04,x+0.04,y-0.5,y-0.3,z-0.04,z+0.04)}};
+  for(const a of [-hw-0.7,hw+0.7]){barge([a,E,-hd-0.6],[a,ridge,0]);barge([a,E,hd+0.6],[a,ridge,0])}
+  const soffit=(p,q,ax)=>{const v=new T.Vector3(q[0]-p[0],q[1]-p[1],q[2]-p[2]),len=v.length(),g=new T.BoxGeometry(0.72,0.05,len);g.lookAt(v);
+    K.put('whiteWood',g.translate(ax,(p[1]+q[1])/2-0.14,(p[2]+q[2])/2));
+    for(let t=0.04;t<0.97;t+=0.045){const y=p[1]+(q[1]-p[1])*t-0.2,z=p[2]+(q[2]-p[2])*t;K.bx('whiteWood',ax-0.36,ax+0.36,y-0.05,y,z-0.03,z+0.03)}};
+  for(const sg of [-1,1]){const ax=sg*(hw+0.35);soffit([0,E,-hd-0.6],[0,ridge,0],ax);soffit([0,E,hd+0.6],[0,ridge,0],ax)}
+  for(const b of [-hd-1.3,hd+1.3]){barge([-5.75,E+0.02,b],[0,ridgeC,b]);barge([5.75,E+0.02,b],[0,ridgeC,b])}
+  for(const b of [-hd-0.6,hd+0.6])K.bx('whiteWood',-hw-0.7,hw+0.7,E-0.32,E,b-0.04,b+0.04);
+  for(const [a,b] of [[-hw+4.2,-1.4],[-hw+9.5,1.6]]){const y=E+(hd+0.6-Math.abs(b))*k;K.bx(wall,a-0.35,a+0.35,y-0.6,y+1.5,b-0.35,b+0.35);K.bx(stone,a-0.43,a+0.43,y+1.5,y+1.7,b-0.43,b+0.43)}
+  // tek katlı kanatlar: düz dam, korkuluk duvarı, yuvarlak kemerli açıklıklar, taş söveler
   for(const sg of [-1,1]){const a0=sg>0?W[0]:-W[1],a1=sg>0?W[1]:-W[0];
-    K.bx('stationStone',a0,a1,low,PL+4.6,W[2],W[3]);K.bx('stationLight',a0-0.2,a1+0.2,PL+4.6,PL+4.9,W[2]-0.2,W[3]+0.2);
-    for(const [x0,x1,z0,z1] of [[a0,a1,W[2],W[2]+0.3],[a0,a1,W[3]-0.3,W[3]],[a0,a0+0.3,W[2],W[3]],[a1-0.3,a1,W[2],W[3]]]){K.bx('stationStone',x0,x1,PL+4.9,PL+5.5,z0,z1);K.bx('stationLight',x0-0.05,x1+0.05,PL+5.5,PL+5.6,z0-0.05,z1+0.05)}
-    K.bx('roofFlat',a0+0.3,a1-0.3,PL+4.9,PL+5.0,W[2]+0.3,W[3]-0.3);
-    for(const [i,D] of [[0,W[3]],[2,-W[2]]]){const F=K.face(i,D);for(const s of [(a0+a1)/2-2.1,(a0+a1)/2+2.1]){const ss=i===0?s:-s;windowOn(F,{s:ss,y:PL+0.9,w:1.3,h:2.5,arch:'segment',glass:'glass',frame:'stationLight',ft:0.22,fd:0.12,mull:1,transom:true})}}
-    const F=K.face(sg>0?1:3,W[1]);windowOn(F,{s:sg>0?-(W[2]+W[3])/2:(W[2]+W[3])/2,y:PL+0.9,w:1.3,h:2.5,arch:'segment',glass:'glass',frame:'stationLight',ft:0.22,fd:0.12,mull:1,transom:true});
+    K.bx(wall,a0,a1,low,PL+4.6,W[2],W[3]);K.bx(stone,a0-0.1,a1+0.1,low,PL,W[2]-0.1,W[3]+0.1);
+    for(const [x0,x1,z0,z1] of [[a0,a1,W[2],W[2]+0.3],[a0,a1,W[3]-0.3,W[3]],[a0,a0+0.3,W[2],W[3]],[a1-0.3,a1,W[2],W[3]]]){K.bx(wall,x0,x1,PL+4.6,PL+5.4,z0,z1);K.bx(stone,x0-0.06,x1+0.06,PL+5.4,PL+5.55,z0-0.06,z1+0.06)}
+    K.bx('roofFlat',a0+0.3,a1-0.3,PL+4.6,PL+4.7,W[2]+0.3,W[3]-0.3);K.bx(stone,a0-0.05,a1+0.05,PL+4.3,PL+4.5,W[2]-0.05,W[3]+0.05);
+    for(const [i,D] of [[0,W[3]],[2,-W[2]]]){const F=K.face(i,D);for(const s of [(a0+a1)/2-2.6,(a0+a1)/2,(a0+a1)/2+2.6]){const ss=i===0?s:-s;windowOn(F,{s:ss,y:PL+0.5,w:1.3,h:2.9,arch:'round',glass:i===0&&s===(a0+a1)/2?'woodDoor':'glass',frame:stone,ft:0.26,fd:0.13,mull:1,transom:true})}
+      for(const s of [a0+0.35,a1-0.35]){const ss=i===0?s:-s;quoins(F,stone,ss,PL,PL+4.3,0.7,1.0,0.07,0.4)}}
+    const F=K.face(sg>0?1:3,W[1]);windowOn(F,{s:0,y:PL+0.5,w:1.3,h:2.9,arch:'round',glass:'glass',frame:stone,ft:0.26,fd:0.13,mull:1,transom:true});
   }
   // peron ve sundurma (raylar tarafı, −b)
   K.bx('concrete',-24.5,24.5,low,PL-0.05,-12.4,-hd);K.bx('yellow',-24.5,24.5,PL-0.05,PL-0.03,-11.95,-11.65);
@@ -521,13 +596,104 @@ function buildStation(L,ctx){
   K.put('canopy',new T.BoxGeometry(48.8,0.1,roofLen).rotateX(-tilt).translate(0,PL+4.2,-hd-2.45));K.bx('steel',-24.4,24.4,PL+3.7,PL+3.98,-11.75,-11.65);
   for(const a of [-21,-15,-9,-3,3,9,15,21]){K.cy('steel',a,-10.8,PL-0.05,PL+3.7,0.12,0.11,10);
     for(const [b1,y1] of [[-8.6,PL+4.3],[-11.6,PL+3.95]]){const len=Math.hypot(b1+10.8,y1-PL-3.0),g=new T.BoxGeometry(0.08,0.12,len).rotateX(Math.atan2(-(y1-PL-3.0),b1+10.8));K.put('steel',g.translate(a,(PL+3.0+y1)/2,(b1-10.8)/2))}}
-  // bayrak direği
-  const [fa,fb]=L.pole,fy=ctx.ga(fa,fb);K.cy('steel',fa,fb,fy,fy+10,0.08,0.05,10);K.cy('stationLight',fa,fb,fy-0.2,fy+0.3,0.45,0.5,12);K.sp('steel',fa,fy+10.05,fb,0.1);
-  const flag=createFlag(ctx.anisotropy,{L:1.8,H:1.2});flag.mesh.position.set(fa+0.06,fy+9.3,fb);group.add(flag.mesh);
+  // bayraklar: Türk bayrağı ve beyaz kurum bayrağı (temsili, amblemsiz)
+  const flags=[];
+  L.poles.forEach(([fa,fb],n)=>{const fy=ctx.ga(fa,fb),h=n?9:10;K.cy('steel',fa,fb,fy,fy+h,0.07,0.045,10);K.cy(stone,fa,fb,fy-0.2,fy+0.3,0.4,0.45,12);K.sp('steel',fa,fy+h+0.05,fb,0.09);
+    const f=n?createWhiteFlag(ctx.anisotropy):createFlag(ctx.anisotropy,{L:1.8,H:1.2});f.mesh.position.set(fa+0.06,fy+h-0.7,fb);group.add(f.mesh);flags.push(f)});
   group.add(bake(K.P,M,'gar'));
-  return {object:group,update(dt){flag.update(dt)}};
+  return {object:group,update(dt){for(const f of flags)f.update(dt)}};
 }
-const BUILD={'saat-kulesi':buildTower,muze:buildMuseum,cami:buildMosque,gar:buildStation};
+/** Boyuna beşik çatı: sırt a boyunca (b ortasında), uçlar açık (alınlık duvarı ayrı). */
+function gableRoofA(x0,x1,z0,z1,y,k,tile){
+  const zm=(z0+z1)/2,ry=y+(z1-z0)/2*k,sl=Math.hypot(1,k),pos=[],uv=[];
+  const quad=p=>{for(const q of [p[0],p[1],p[2],p[0],p[2],p[3]]){pos.push(...q);uv.push(q[0]/tile,Math.abs(q[2]-(q[2]<zm?z0:z1))*sl/tile)}};
+  quad([[x0,y,z1],[x1,y,z1],[x1,ry,zm],[x0,ry,zm]]);quad([[x1,y,z0],[x0,y,z0],[x0,ry,zm],[x1,ry,zm]]);
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
+  g.computeVertexNormals();return g;
+}
+function createWhiteFlag(anisotropy){
+  const f=createFlag(anisotropy,{L:1.6,H:1.1});const cv=document.createElement('canvas');cv.width=192;cv.height=128;const g=cv.getContext('2d');
+  g.fillStyle='#f6f6f4';g.fillRect(0,0,192,128);g.fillStyle='#c8302c';g.fillRect(0,100,192,10);g.fillStyle='#2a4a9c';g.fillRect(0,112,192,8);
+  const t=new T.CanvasTexture(cv);t.colorSpace=T.SRGBColorSpace;t.anisotropy=anisotropy;f.mesh.material.map=t;f.mesh.material.needsUpdate=true;return f;
+}
+// ---------------------------------------------------------------- Atatürk Stadyumu
+// Zafer Hoca'nın hava fotoğrafı (5 Kasım) ve OSM (stadyum alanı, saha, iki tribün çatısı): çimen saha (biçme izleri,
+// çizgiler, kaleler), sekiz kulvarlı kırmızı atletizm pisti, sahayı tümüyle saran gri beton basamaklı tribünler ve
+// merdiven aralıkları, dış duvarda turuncu bant; batıda (−b) arkasında bina bulunan kapalı ana tribün, doğuda daha dar
+// çatılı tribün (beyaz çatılar); köşelerde dört ışık kulesi. Ölçüler standart 400 m pistten; temsili.
+function capsulePoint(t,r,S){   // t ∈ [0,4): 0–1 doğu düzlüğü (+b), 1–2 +a yarım daire, 2–3 batı düzlüğü, 3–4 −a yarım daire
+  if(t<1)return [-S+2*S*t,r];
+  if(t<2){const q=Math.PI/2-(t-1)*Math.PI;return [S+r*Math.cos(q),r*Math.sin(q)]}
+  if(t<3)return [S-2*S*(t-2),-r];
+  const q=-Math.PI/2-(t-3)*Math.PI;return [-S+r*Math.cos(q),r*Math.sin(q)];
+}
+function capsuleParams(S,n){const ts=[];const nl=Math.round(n*0.18),nc=Math.round(n*0.32);
+  for(let i=0;i<nl;i++)ts.push(i/nl);for(let i=0;i<nc;i++)ts.push(1+i/nc);for(let i=0;i<nl;i++)ts.push(2+i/nl);for(let i=0;i<nc;i++)ts.push(3+i/nc);ts.push(4);return ts}
+/** Yatay halka şerit (r0..r1, y) ya da düşey şerit (r, y0..y1); u: çevre boyunca metre (doku için). */
+function capsuleStrip(S,ts,{r0,r1,y,ry0,ry1,r,out=1}){
+  const pos=[],uv=[],P=(t,rr)=>capsulePoint(t%4,rr,S);let L=0;
+  for(let i=0;i<ts.length-1;i++){const t0=ts[i],t1=ts[i+1];
+    if(r==null){const [a0,b0]=P(t0,r0),[a1,b1]=P(t0,r1),[a2,b2]=P(t1,r1),[a3,b3]=P(t1,r0);const l=Math.hypot(a2-a1,b2-b1);
+      for(const [q,u,v] of [[[a0,y,b0],L,0],[[a2,y,b2],L+l,1],[[a3,y,b3],L+l,0],[[a0,y,b0],L,0],[[a1,y,b1],L,1],[[a2,y,b2],L+l,1]]){pos.push(...q);uv.push(u,v)}L+=l}   // yukarı bakan yüz
+    else{const [a0,b0]=P(t0,r),[a1,b1]=P(t1,r),l=Math.hypot(a1-a0,b1-b0);
+      const quad=out>0?[[[a0,ry0,b0],L,0],[[a1,ry1,b1],L+l,1],[[a1,ry0,b1],L+l,0],[[a0,ry0,b0],L,0],[[a0,ry1,b0],L,1],[[a1,ry1,b1],L+l,1]]
+        :[[[a0,ry0,b0],L,0],[[a1,ry0,b1],L+l,0],[[a1,ry1,b1],L+l,1],[[a0,ry0,b0],L,0],[[a1,ry1,b1],L+l,1],[[a0,ry1,b0],L,1]];
+      for(const [q,u,v] of quad){pos.push(...q);uv.push(u,v)}L+=l}}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.computeVertexNormals();return g;
+}
+function fieldTexture(anisotropy,S,Rin){
+  const W=1600,H=Math.round(W*(2*Rin)/(2*(S+Rin))),sx=W/(2*(S+Rin)),cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  const X=a=>(a+S+Rin)*sx,Y=b=>(b+Rin)*sx;
+  for(let k=0;k*5<2*(S+Rin);k++){g.fillStyle=k%2?'#3f8f3a':'#4aa043';g.fillRect(X(-S-Rin+k*5),0,5*sx+1,H)}
+  for(let i=0;i<6000;i++){g.fillStyle=`rgba(${20+rnd()*30|0},${70+rnd()*60|0},${20+rnd()*25|0},0.18)`;g.fillRect(rnd()*W,rnd()*H,2,2)}
+  g.strokeStyle='#f4f6f2';g.lineWidth=Math.max(2,0.12*sx);const L=52.5,Wd=34;
+  g.strokeRect(X(-L),Y(-Wd),X(L)-X(-L),Y(Wd)-Y(-Wd));g.beginPath();g.moveTo(X(0),Y(-Wd));g.lineTo(X(0),Y(Wd));g.stroke();
+  g.beginPath();g.arc(X(0),Y(0),9.15*sx,0,Math.PI*2);g.stroke();
+  for(const sgn of [-1,1]){const xa=X(sgn*L),xp=X(sgn*(L-16.5)),xg=X(sgn*(L-5.5));
+    g.strokeRect(Math.min(xa,xp),Y(-20.15),Math.abs(xp-xa),40.3*sx);g.strokeRect(Math.min(xa,xg),Y(-9.15),Math.abs(xg-xa),18.3*sx);
+    g.beginPath();g.arc(X(sgn*(L-11)),Y(0),9.15*sx,sgn>0?Math.PI*0.705:-Math.PI*0.295,sgn>0?Math.PI*1.295:Math.PI*0.295);g.stroke();
+    g.fillStyle='#f4f6f2';g.beginPath();g.arc(X(sgn*(L-11)),Y(0),0.25*sx,0,Math.PI*2);g.fill()}
+  g.fillStyle='#f4f6f2';g.beginPath();g.arc(X(0),Y(0),0.25*sx,0,Math.PI*2);g.fill();
+  const t=new T.CanvasTexture(cv);t.colorSpace=T.SRGBColorSpace;t.anisotropy=anisotropy;return t;
+}
+function buildStadium(L,ctx){
+  const {S,Rin,Rtr,R0,R1,rows,rise,front,top}=L,M=ctx.M,group=new T.Group(),K=kit(),A=ctx.anisotropy;
+  const ts=capsuleParams(S,220),y=0.06;
+  // saha (kapsül iç alanı), pist, kulvar çizgileri, pist çevresi
+  const fs=new T.Shape(),pts=[];for(let i=0;i<ts.length-1;i++){const [a,b]=capsulePoint(ts[i],Rin,S);pts.push(new T.Vector2(a,-b))}fs.setFromPoints(pts);
+  const fg=new T.ShapeGeometry(fs,1);fg.rotateX(-Math.PI/2);fg.translate(0,y,0);
+  const fp=fg.attributes.position,fuv=new Float32Array(fp.count*2);for(let i=0;i<fp.count;i++){fuv[i*2]=(fp.getX(i)+S+Rin)/(2*(S+Rin));fuv[i*2+1]=1-(fp.getZ(i)+Rin)/(2*Rin)}
+  fg.setAttribute('uv',new T.BufferAttribute(fuv,2));
+  const field=new T.Mesh(fg,ctx.fieldMat);field.receiveShadow=true;field.name='stadyum-saha';group.add(field);
+  K.put('track',capsuleStrip(S,ts,{r0:Rin,r1:Rtr,y:y+0.01}));
+  for(let k=0;k<=8;k++){const r=Rin+k*1.22;K.put('laneLine',capsuleStrip(S,ts,{r0:r-0.03,r1:r+0.03,y:y+0.02}))}
+  K.put('apron',capsuleStrip(S,ts,{r0:Rtr,r1:R0,y:y}));
+  // tribünler: ön duvar, basamaklar (basamak + rıht), arka duvar, dış yüz ve turuncu bant
+  K.put('standWall',capsuleStrip(S,ts,{r:R0,ry0:-0.5,ry1:front,out:-1}));
+  for(let i=0;i<rows;i++){const r0=R0+i*(R1-R0)/rows,r1=R0+(i+1)*(R1-R0)/rows,h=front+i*rise;
+    K.put('tread',capsuleStrip(S,ts,{r0,r1,y:h}));K.put('riser',capsuleStrip(S,ts,{r:r1,ry0:h,ry1:h+rise,out:-1}))}
+  K.put('tread',capsuleStrip(S,ts,{r0:R1,r1:R1+1.2,y:top}));
+  K.put('standWall',capsuleStrip(S,ts,{r:R1+1.2,ry0:top,ry1:top+1.1,out:-1}));
+  K.put('outerWall',capsuleStrip(S,ts,{r:R1+1.2,ry0:-0.5,ry1:top+0.2,out:1}));
+  K.put('orange',capsuleStrip(S,ts,{r:R1+1.22,ry0:top+0.2,ry1:top+1.1,out:1}));
+  K.put('tread',capsuleStrip(S,ts,{r0:R1+1.2,r1:R1+1.25,y:top+1.1}));
+  // batı ana tribün: arkasında bina, üstünde konsol beyaz çatı; doğuda daha dar çatılı bölüm
+  const [m0,m1]=L.mainA;K.bx('outerWall',m0,m1,-0.5,top+3.5,-80,-R1-1.2);K.bx('orange',m0-0.05,m1+0.05,top+2.4,top+3.2,-80.05,-R1-1.15);
+  for(let a=m0+3;a<m1-2;a+=4.5)for(const yy of [2.2,5.6,9.0])K.bx('glass',a-0.9,a+0.9,yy,yy+1.6,-80.08,-80.02);
+  const roofW=new T.BoxGeometry(m1-m0+2,0.35,31).rotateX(-0.05);K.put('roofWhite',roofW.translate((m0+m1)/2,top+6.4,-65));
+  for(let a=m0;a<=m1;a+=10)K.bx('steel',a-0.25,a+0.25,top+3.5,top+6.4,-79.6,-79.1);
+  const [e0,e1]=L.eastA;K.put('roofWhite',new T.BoxGeometry(e1-e0,0.3,11.5).rotateX(0.06).translate((e0+e1)/2,top+2.9,R1-4.2));
+  for(let a=e0+2;a<=e1-2;a+=11.5)K.bx('steel',a-0.15,a+0.15,top,top+2.7,R1+0.6,R1+0.9);
+  // ışık kuleleri, kaleler
+  for(const [a,b] of L.lights){K.cy('lampPoleS',a,b,0,38,0.75,0.4,10);const head=new T.Group();head.position.set(a,38.5,b);head.lookAt(new T.Vector3(0,0,0));
+    const hb=new T.BoxGeometry(7,4,0.5).applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(head.quaternion)).translate(a,40,b);K.put('lampPoleS',hb);
+    const lamp=new T.BoxGeometry(6.4,3.4,0.1).translate(0,0,0.3).applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(head.quaternion)).translate(a,40,b);K.put('floodlight',lamp)}
+  for(const sa of [-1,1]){const a=sa*52.5;for(const b of [-3.66,3.66])K.cy('goal',a,b,y,y+2.44,0.06,0.06,8);K.put('goal',new T.CylinderGeometry(0.06,0.06,7.32,8).rotateX(Math.PI/2).translate(a,y+2.44,0));
+    K.bx('net',a+sa*0.02,a+sa*1.8,y,y+2.44,-3.66,3.66)}
+  group.add(bake(K.P,M,'stadyum'));
+  return {object:group};
+}
+const BUILD={'saat-kulesi':buildTower,muze:buildMuseum,cami:buildMosque,gar:buildStation,stadyum:buildStadium};
 
 /** Katman: yapılar, koruma alanı zemin kaplamaları, çarpışma. surface(x,z): arazi ağının yüksekliği. */
 export function createHeritageLayer({data,ground,surface=ground,anisotropy=4,place=heritagePlacement(data,ground)}){
@@ -539,17 +705,23 @@ export function createHeritageLayer({data,ground,surface=ground,anisotropy=4,pla
     latticeGate:Object.assign(new T.MeshStandardMaterial({map:latticeTex,transparent:true,alphaTest:0.4,side:T.DoubleSide,roughness:0.85}),{name:'tarihi-kapi-kafes'}),
     garText:textMat(textTexture('BALIKESİR GAR',{w:1024,h:112,fg:'#ffffff',font:'bold 96px "Segoe UI", Arial, sans-serif',anisotropy}),'gar-yazi',{transparent:true,extra:{emissive:'#555555'}}),
     balText:textMat(textTexture('BALIKESİR',{w:1024,h:120,bg:'#cdbfa8',fg:'#6b5a46',font:'bold 84px Georgia, serif',anisotropy}),'gar-balikesir'),
-    tcddText:textMat(textTexture('TCDD',{w:512,h:150,fg:'#ffffff',font:'bold 132px "Segoe UI", Arial, sans-serif',anisotropy}),'gar-tcdd',{transparent:true,extra:{emissive:'#444444'}}),
-    ottoText:textMat(textTexture('1912',{w:512,h:150,bg:'#cdbfa8',fg:'#6b5a46',font:'bold 100px Georgia, serif',anisotropy}),'gar-kitabe')};
+    tcddText:textMat(textTexture('TCDD',{w:512,h:150,fg:'#ffffff',font:'bold 132px "Segoe UI", Arial, sans-serif',anisotropy}),'gar-tcdd',{transparent:true,extra:{emissive:'#444444'}})};
   ctx.clockMat.name='tarihi-saat-kadrani';
+  // gar yan alınlık levhası: Zafer Hoca'nın fotoğrafından kırpılıp perspektifi düzeltilmiş doku (BALIKESSIR + Osmanlıca)
+  const plaqueTex=new T.TextureLoader().load('models/gar-levha.jpg');plaqueTex.colorSpace=T.SRGBColorSpace;plaqueTex.anisotropy=anisotropy;
+  ctx.garPlaque=new T.MeshStandardMaterial({map:plaqueTex,roughness:0.85});ctx.garPlaque.name='tarihi-gar-levha';
+  const st=place.structures.find(x=>x.def.tip==='stadyum');
+  if(st){ctx.fieldMat=new T.MeshStandardMaterial({map:fieldTexture(anisotropy,st.lay.S,st.lay.Rin),roughness:0.95,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2});ctx.fieldMat.name='tarihi-saha'}
   const object=new T.Group();object.name='tarihi-yapilar';const parts=[];
   for(const s of place.structures){
     const b=BUILD[s.def.tip];if(!b)continue;
     const built=b(s.lay,{...ctx,ga:s.ga});
     const holder=new T.Group();holder.name='tarihi-'+s.id;holder.position.set(s.c.x,s.y0,s.c.z);holder.rotation.y=s.yaw;holder.add(built.object);object.add(holder);
-    const solid=s.lay.solid||[];
-    const yard=createYard({kind:s.def.tip==='gar'?'avlu':'bahce',zone:s.lay.zone,spec:s.lay.yard||(s.def.tip==='muze'?{plaza:[[-s.lay.hw-1.2,s.lay.hw+1.2,-s.lay.hd-1.2,s.lay.hd+1.2],[-3.8,3.8,s.lay.hd,s.lay.pb+s.lay.run+0.6],[-1.6,1.6,s.lay.hd,s.lay.gate+0.9]]}:{plaza:[[-99,99,-99,99]]}),
-      world:s.world,center:s.c,yaw:s.yaw,surface,anisotropy,inBuilding:(a,bb)=>solid.some(r=>a>=r[0]+0.2&&a<=r[1]-0.2&&bb>=r[2]+0.2&&bb<=r[3]-0.2)});
+    const solid=s.lay.solid||[],tip=s.def.tip,skirt=['north','south','east','west'];
+    const spec=s.lay.yard||(tip==='muze'?{plaza:[[-s.lay.hw-1.2,s.lay.hw+1.2,-s.lay.hd-1.2,s.lay.hd+1.2],[-3.8,3.8,s.lay.hd,s.lay.pb+s.lay.run+0.6],[-1.6,1.6,s.lay.hd,s.lay.gate+0.9]]}
+      :tip==='stadyum'?{cell:3}:{plaza:[[-99,99,-99,99]]});
+    const yard=createYard({kind:tip==='gar'||tip==='stadyum'?'avlu':'bahce',zone:s.lay.zone,spec:{skirt,...spec},
+      world:s.world,center:s.c,yaw:s.yaw,surface,anisotropy,inBuilding:(a,bb)=>s.lay.inside?.(a,bb)||solid.some(r=>a>=r[0]+0.2&&a<=r[1]-0.2&&bb>=r[2]+0.2&&bb<=r[3]-0.2)});
     object.add(yard.object);parts.push(built,yard);
   }
   return {object,place,stats:{yapilar:place.structures.map(s=>s.name)},

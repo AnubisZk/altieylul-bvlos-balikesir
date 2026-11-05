@@ -156,11 +156,13 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   // BİLSEM binası, kamelyası ve Fen Lisesi (bilsem.js), tarihi yapılar (tarihi-yapilar.js): Google ağı bahçelerinde atılır,
   // temsili modeller görünür (keep-zone.js MAX_KEEP koruma alanı)
   const bilsemPlace=bilsemData?.model&&loader?bilsemPlacement(bilsemData,terrainHeight):null;
-  // BİLSEM avlusu düz (yamaca oyulmuş meydan): fizik zemini, kaplama ve kalkış pedi oraya oturur; dışında DEM
-  const yard=bilsemPlace?.yard||null;
-  const ground=yard?(x,z)=>yard.heightAt(x,z,terrainHeight)??terrainHeight(x,z):terrainHeight;
-  const surface=yard?(x,z)=>yard.heightAt(x,z,terrainSurface)??terrainSurface(x,z):terrainSurface;
   const heritagePlace=heritageData?heritagePlacement(heritageData,terrainHeight):null;
+  // düz alanlar: BİLSEM ve Fen avluları (yamaca oyulmuş meydanlar), stadyum. Fizik zemini, kaplamalar ve kalkış pedi oraya
+  // oturur; dışında DEM.
+  const flats=[...(bilsemPlace?.flatZones||[]),...(heritagePlace?.flatZones||[])];
+  const flatAt=(x,z,base)=>{for(const f of flats){const h=f.heightAt(x,z,base);if(h!=null)return h}return null};
+  const ground=flats.length?(x,z)=>flatAt(x,z,terrainHeight)??terrainHeight(x,z):terrainHeight;
+  const surface=flats.length?(x,z)=>flatAt(x,z,terrainSurface)??terrainSurface(x,z):terrainSurface;
   const keep=keepZones({home:homeLocal,extra:[...(bilsemPlace?.keepZones||[]),...(heritagePlace?.keepZones||[])]}),keepU=keepUniforms(keep);
   const tMat=terrainMaterial(shared);clipToKeep(tMat,keepU,null,null,{holes:true});   // bahçe/avlu alanlarında zemin kaplamadır
   const terrainMesh=new T.Mesh(geo,tMat);terrainMesh.receiveShadow=true;terrainMesh.name='city-terrain';
@@ -183,7 +185,7 @@ export async function createCityWorld({scene,renderer,camera,loader=null,quality
   }
   if(heritagePlace&&loader){
     onProgress(0.85,'Tarihi yapılar');
-    try{const layer=createHeritageLayer({data:heritageData,ground:terrainHeight,surface:terrainSurface,place:heritagePlace,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});
+    try{const layer=createHeritageLayer({data:heritageData,ground,surface,place:heritagePlace,anisotropy:Math.min(8,renderer?.capabilities.getMaxAnisotropy?.()||1)});
       layers.push(layer);object.add(layer.object);sources.tarihi=layer.stats.yapilar.length+' yapı (temsili)'}
     catch(e){console.warn('[tarihi] yapılar kurulamadı',e.message);sources.tarihi='kurulamadı'}
   }

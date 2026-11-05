@@ -51,6 +51,20 @@
       "width": 23.7,
       "depth": 13.6,
       "note": "OSM ayak izi (Balıkesir Garı) ve iki yanındaki tek katlı OSM yapıları (kanatlar); Zafer Hoca'nın noktası (39.647305, 27.888386) garın önündeki kavşakta. Ön cephe kuzeybatıda caddeye, peron ve sundurma güneydoğuda raylara bakar. Kesme taş, iki kat; ortada alınlıklı (TCDD) çıkma blok, üç kemerli kapı ve 'BALIKESİR GAR' yazısı; yanlarda kırma çatılı iki katlı bölümler, uçlarda tek katlı kanatlar; bayrak."
+    },
+    "stadyum": {
+      "tip": "stadyum",
+      "name": "Atatürk Stadyumu",
+      "osm": "way/-9106193 (stadyum), way/623201732 (saha), way/623201733–623201734 (tribün çatıları)",
+      "center": [
+        27.8877447,
+        39.6415408
+      ],
+      "front": 74.8,
+      "straight": 42.2,
+      "standOuter": 68,
+      "rows": 22,
+      "note": "Zafer Hoca'nın hava fotoğrafı (5 Kasım 2026) ve OSM: saha merkezi ve ekseni OSM sahasından (106.7 × 65.6 m, eksen 165°), dış sınır OSM stadyum alanından (225 × 150 m), batıda büyük, doğuda dar kapalı tribün (OSM çatıları). Pist standart 400 m (8 kulvar); tribün 22 sıra; temsili."
     }
   }
 }

@@ -125,12 +125,12 @@ test('Fen Lisesi: BİLSEM arkasında (kuzey), aynı tip proje aynalı, araların
 
 import {heritagePlacement} from '../drone/tarihi-yapilar.js';
 import {lonLatToLocal} from '../src/geo.js';
-test('Tarihi yapılar: dört yapı yerinde, OSM ayak izleriyle uyumlu, koruma alanları sınırda ve birbirinden ayrı',()=>{
+test('Tarihi yapılar: beş yapı yerinde, OSM ayak izleriyle uyumlu, koruma alanları sınırda ve birbirinden ayrı',()=>{
   setGeoRegion(region,u);
   const data=JSON.parse(fs.readFileSync('data/bal/tarihi-yapilar.json','utf8')),hp=heritagePlacement(data,()=>150);
   const bp=bilsemPlacement(JSON.parse(fs.readFileSync('data/bal/bilsem.json','utf8')),()=>160);
   const S=Object.fromEntries(hp.structures.map(s=>[s.id,s]));
-  assert.deepEqual(Object.keys(S).sort(),['gar','kuvayi-milliye','saat-kulesi','zaganos-pasa']);
+  assert.deepEqual(Object.keys(S).sort(),['gar','kuvayi-milliye','saat-kulesi','stadyum','zaganos-pasa']);
   for(const s of hp.structures)assert.ok(HERITAGE.some(h=>h.id===s.id),s.id+' inceleme listesinde');
   const all=keepZones({home,extra:[...bp.keepZones,...hp.keepZones]});assert.ok(all.length<=MAX_KEEP,`${all.length} koruma alanı`);
   // Saat Kulesi Zafer Hoca'nın noktasında; müze ~34 m kuzeydoğusunda ve aşağıda (OSM)
@@ -151,4 +151,20 @@ test('Tarihi yapılar: dört yapı yerinde, OSM ayak izleriyle uyumlu, koruma al
   for(const id of ['w232389727','w211424804','w540147154','w1150381136','w206732721','w675941510','w675941511'])assert.ok(hp.removes(bl.find(b=>b.id===id).ring),id+' ayıklanır');
   // kapıdan geçilir, kemerin üstüne çarpılır
   const g=S['kuvayi-milliye'],gp=g.world(0,g.lay.gate);assert.equal(hp.hitTest(gp.x,150+2,gp.z,0.2),null);assert.ok(hp.hitTest(gp.x,150+5.5,gp.z,0.2));
+});
+
+test('Atatürk Stadyumu: OSM sahası içinde, tribün profili, OSM kutuları ayıklanır, düz zemin',()=>{
+  setGeoRegion(region,u);
+  const data=JSON.parse(fs.readFileSync('data/bal/tarihi-yapilar.json','utf8')),hp=heritagePlacement(data,(x,z)=>150+0.01*x);
+  const st=hp.structures.find(s=>s.id==='stadyum'),L=st.lay;
+  const bl=JSON.parse(fs.readFileSync('data/bal/buildings.json','utf8')).buildings;
+  for(const id of ['w-9106193','w623201733','w623201734'])assert.ok(hp.removes(bl.find(b=>b.id===id).ring),id+' ayıklanır');
+  const h=(a,b)=>{const p=st.world(a,b);return hp.heightAt(p.x,p.z)-st.y0};
+  assert.equal(h(0,0),-Infinity,'saha ortası boş');assert.equal(h(0,L.Rtr-1),-Infinity,'pist boş');
+  assert.ok(h(0,L.R0+1)>1&&h(0,L.R0+1)<3,'ilk sıralar alçak');assert.ok(h(0,L.R1-1)>8,'üst sıralar yüksek');
+  assert.ok(h(L.S+L.R1-1,0)>8,'kale arkası tribün');
+  // OSM saha köşeleri sahanın içinde (çizgi 105 × 68)
+  const pitch=JSON.parse(fs.readFileSync('data/bal/ground.json','utf8')).features.find(f=>f.id===623201732);
+  for(const [lon,lat] of pitch.coordinates){const p=lonLatToLocal(lon,lat),[a,b]=st.local(p.x,p.z);assert.ok(Math.abs(a)<56&&Math.abs(b)<36,`saha köşesi ${a.toFixed(1)},${b.toFixed(1)}`)}
+  const fz=hp.flatZones.find(f=>f.id==='stadyum'),c=st.world(30,20);assert.ok(Math.abs(fz.heightAt(c.x,c.z)-st.y0)<1e-9,'düz zemin');
 });
